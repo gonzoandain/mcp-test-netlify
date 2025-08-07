@@ -90,7 +90,7 @@ export function buildOneAppServer(): McpServer {
   // Core API tools
   server.tool(
     'core_list_sucursales',
-    'Devuelve todas las sucursales del cliente.',
+    'Obtiene la lista completa de sucursales registradas para el cliente autenticado (sin parámetros adicionales).',
     async () => { 
       try {
         const data = await httpJson<any>(CORE_BASE, '/core/sucursales', { method: 'GET' });
@@ -104,7 +104,7 @@ export function buildOneAppServer(): McpServer {
 
   server.tool(
     'core_list_zonas',
-    'Devuelve todas las zonas del cliente. Puede filtrar por zone_id.',
+    'Devuelve todas las zonas asociadas al cliente; permite filtrar con el query param zone_id para recuperar una zona específica.',
     {
       zone_id: z.number().int().optional().describe('ID de la zona')
     },
@@ -128,7 +128,7 @@ export function buildOneAppServer(): McpServer {
 
   server.tool(
     'core_list_zonas_by_subgerencia',
-    'Devuelve zonas asociadas a una subgerencia dada.',
+    'Devuelve las zonas pertenecientes a la subgerencia indicada por el path param id.',
     {
       id: z.number().int().describe('ID de subgerencia')
     },
@@ -140,7 +140,7 @@ export function buildOneAppServer(): McpServer {
 
   server.tool(
     'core_list_sucursales_by_zona',
-    'Devuelve sucursales asociadas a una zona.',
+    'Muestra las sucursales asociadas a la zona identificada por el path param zone_id.',
     {
       zone_id: z.number().int().describe('ID de la zona')
     },
@@ -153,7 +153,7 @@ export function buildOneAppServer(): McpServer {
   // Checklist API tools
   server.tool(
     'checklist_list_checks',
-    'Devuelve todos los checklists activos del cliente.',
+    'Retorna todos los checklists activos del cliente con paginación (page, limit) y búsqueda por nombre (search).',
     {
       page: z.number().int().min(1).optional().describe('Page number (starts at 1)'),
       limit: z.number().int().min(1).max(100).optional().describe('Number of items per page (max 100)'),
@@ -172,7 +172,7 @@ export function buildOneAppServer(): McpServer {
 
   server.tool(
     'checklist_list_ambitos',
-    'Devuelve los ámbitos de un checklist específico.',
+    'Obtiene los ámbitos de un checklist específico (check_id), con soporte de paginación opcional.',
     {
       check_id: z.number().int().describe('ID del checklist'),
       page: z.number().int().min(1).optional().describe('Page number (starts at 1)'),
@@ -189,7 +189,7 @@ export function buildOneAppServer(): McpServer {
 
   server.tool(
     'checklist_list_preguntas',
-    'Devuelve todas las preguntas de un checklist.',
+    'Devuelve todas las preguntas que componen un checklist identificado por check_id.',
     {
       check_id: z.number().int().describe('ID del checklist')
     },
@@ -202,7 +202,7 @@ export function buildOneAppServer(): McpServer {
 
   server.tool(
     'checklist_list_cuestionarios',
-    'Devuelve todos los cuestionarios ejecutados en un rango de fechas.',
+    'Lista los cuestionarios ejecutados de un checklist dentro de un rango de fechas (from_date → end_date), con paginación opcional. ',
     {
       check_id: z.number().int().describe('ID del checklist'),
       from_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).describe('YYYY-MM-DD'),
@@ -225,7 +225,7 @@ export function buildOneAppServer(): McpServer {
 
   server.tool(
     'checklist_list_asignaciones',
-    'Devuelve las asignaciones asociadas a un cuestionario.',
+    'Devuelve las asignaciones ligadas a un cuestionario (cuestionario_id), con paginación opcional.',
     {
       cuestionario_id: z.number().int().describe('ID del cuestionario'),
       page: z.number().int().min(1).optional().describe('Page number (starts at 1)'),
@@ -242,7 +242,7 @@ export function buildOneAppServer(): McpServer {
 
   server.tool(
     'checklist_list_respuestas',
-    'Devuelve las respuestas registradas para una asignación o para todas las asignaciones de un cuestionario.',
+    'Entrega las respuestas registradas para un cuestionario (cuestionario_id) o para una asignación concreta (asignacion_id), permitiendo paginación.',
     {
       cuestionario_id: z.number().int().describe('ID del cuestionario'),
       asignacion_id: z.number().int().optional().describe('ID de la asignación (opcional)'),
