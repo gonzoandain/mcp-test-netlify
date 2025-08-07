@@ -9,4 +9,4 @@
   force = true
   from = "/mcp"
   status = 200
-  to = "/netlify/functions/mcp"
+  to = "/.netlify/functions/mcp"
