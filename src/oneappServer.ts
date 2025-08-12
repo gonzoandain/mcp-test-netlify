@@ -266,7 +266,10 @@ export function buildOneAppServer(): McpServer {
       area_id: z.number().int().optional().describe('ID del area visual (opcional)')
     },
     async ({ area_id }) => {
-      const data = await httpJson<any>(CORE_BASE, `/visual/area/${area_id}`, { method: 'GET' });
+      const qs = new URLSearchParams();
+      if (area_id) qs.set('area_id', String(area_id));
+      const path = `/visual/areas${qs.toString() ? `?${qs.toString()}` : ''}`;
+      const data = await httpJson<any>(CORE_BASE, path, { method: 'GET' });
       return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
     }
   );
@@ -278,7 +281,10 @@ export function buildOneAppServer(): McpServer {
       category_id: z.number().int().optional().describe('ID de la categoría visual (opcional)')
     },
     async ({ category_id }) => {
-      const data = await httpJson<any>(CORE_BASE, `/visual/category/${category_id}`, { method: 'GET' });
+      const qs = new URLSearchParams();
+      if (category_id) qs.set('category_id', String(category_id));
+      const path = `/visual/categorias${qs.toString() ? `?${qs.toString()}` : ''}`;
+      const data = await httpJson<any>(CORE_BASE, path, { method: 'GET' });
       return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
     }
   );
@@ -302,7 +308,10 @@ export function buildOneAppServer(): McpServer {
       reason_id: z.number().int().optional().describe('ID del criterio de evaluación (opcional)')
     },
     async ({ reason_id }) => {
-      const data = await httpJson<any>(CORE_BASE, `/visual/reason/${reason_id}`, { method: 'GET' });
+      const qs = new URLSearchParams();
+      if (reason_id) qs.set('reason_id', String(reason_id));
+      const path = `/visual/razones${qs.toString() ? `?${qs.toString()}` : ''}`;
+      const data = await httpJson<any>(CORE_BASE, path, { method: 'GET' });
       return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
     }
   );
