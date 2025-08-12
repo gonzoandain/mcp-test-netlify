@@ -261,7 +261,7 @@ export function buildOneAppServer(): McpServer {
 
   server.tool(
     'visual_areas',
-    'Devuelve las áreas del modulo de visapp o visuales disponibles en el cliente.',
+    'Devuelve las áreas del modulo de visapp o visuales disponibles en el cliente. Permite filtrar con el query param area_id para recuperar un area específica.',
     {
       area_id: z.number().int().describe('ID del area visual (opcional)')
     },
@@ -273,7 +273,7 @@ export function buildOneAppServer(): McpServer {
 
   server.tool(
     'visual_categorias',
-    'Devuelve las categorías visuales disponibles en el cliente.',
+    'Devuelve las categorías visuales disponibles en el cliente. Permite filtrar con el query param category_id para recuperar una categoría específica.',
     {
       category_id: z.number().int().describe('ID de la categoría visual (opcional)')
     },
@@ -297,7 +297,7 @@ export function buildOneAppServer(): McpServer {
 
   server.tool(
     'visual_razones',
-    'Devuelve los criterios de evaluación de campañas visuales disponibles en el cliente.',
+    'Devuelve los criterios de evaluación de campañas visuales disponibles en el cliente. Permite filtrar con el query param reason_id para recuperar un criterio específico.',
     {
       reason_id: z.number().int().describe('ID del criterio de evaluación (opcional)')
     },
