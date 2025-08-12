@@ -259,5 +259,65 @@ export function buildOneAppServer(): McpServer {
     }
   );
 
+  server.tool(
+    'visual_areas',
+    'Devuelve las áreas del modulo de visapp o visuales disponibles en el cliente.',
+    {
+      area_id: z.number().int().describe('ID del area visual (opcional)')
+    },
+    async ({ area_id }) => {
+      const data = await httpJson<any>(CORE_BASE, `/visual/area/${area_id}`, { method: 'GET' });
+      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    'visual_categorias',
+    'Devuelve las categorías visuales disponibles en el cliente.',
+    {
+      category_id: z.number().int().describe('ID de la categoría visual (opcional)')
+    },
+    async ({ category_id }) => {
+      const data = await httpJson<any>(CORE_BASE, `/visual/category/${category_id}`, { method: 'GET' });
+      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    'visual_area_categorias',
+    'Devuelve las categorías visuales asociadas a un area disponibles en el cliente.',
+    {
+      areas_id: z.array(z.number().int()).describe('Listado de ids de areas de visuales')
+    },
+    async ({ areas_id }) => {
+      const data = await httpJson<any>(CORE_BASE, `/visual/category/area/${areas_id}`, { method: 'GET' });
+      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    'visual_razones',
+    'Devuelve los criterios de evaluación de campañas visuales disponibles en el cliente.',
+    {
+      reason_id: z.number().int().describe('ID del criterio de evaluación (opcional)')
+    },
+    async ({ reason_id }) => {
+      const data = await httpJson<any>(CORE_BASE, `/visual/reason/${reason_id}`, { method: 'GET' });
+      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    'visual_categoria_razones',
+    'Devuelve los criterios de evaluación de campañas visuales asociadas a un listado de categorias. Es recomendable haber preguntado por categorias y areas previamente.',
+    {
+      categories_id: z.array(z.number().int()).describe('Listado de ids de categorias de visuales')
+    },
+    async ({ categories_id }) => {
+      const data = await httpJson<any>(CORE_BASE, `/visual/reason/categories/${categories_id}`, { method: 'GET' });
+      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+    }
+  );
+
   return server;
 }
