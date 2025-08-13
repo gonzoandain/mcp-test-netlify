@@ -261,14 +261,14 @@ export function buildOneAppServer(): McpServer {
 
   server.tool(
     'visual_areas',
-    'Devuelve las áreas del modulo de visapp o visuales disponibles en el cliente. Permite filtrar con el query param area_id para recuperar un area específica.',
+    '222Devuelve las áreas del modulo de visapp o visuales disponibles en el cliente. Permite filtrar con el query param area_id para recuperar un area específica.',
     {
       area_id: z.number().int().optional().describe('ID del area visual (opcional)')
     },
     async ({ area_id }) => {
       const qs = new URLSearchParams();
-      if (area_id) qs.set('area_id', String(area_id));
-      const path = `/visual/areas${qs.toString() ? `?${qs.toString()}` : ''}`;
+      if (area_id) qs.set('id', String(area_id));
+      const path = `/visual/area${qs.toString() ? `?${qs.toString()}` : ''}`;
       const data = await httpJson<any>(CORE_BASE, path, { method: 'GET' });
       return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
     }
@@ -282,8 +282,8 @@ export function buildOneAppServer(): McpServer {
     },
     async ({ category_id }) => {
       const qs = new URLSearchParams();
-      if (category_id) qs.set('category_id', String(category_id));
-      const path = `/visual/categorias${qs.toString() ? `?${qs.toString()}` : ''}`;
+      if (category_id) qs.set('id', String(category_id));
+      const path = `/visual/category${qs.toString() ? `?${qs.toString()}` : ''}`;
       const data = await httpJson<any>(CORE_BASE, path, { method: 'GET' });
       return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
     }
@@ -296,7 +296,9 @@ export function buildOneAppServer(): McpServer {
       areas_id: z.array(z.number().int()).describe('Listado de ids de areas de visuales')
     },
     async ({ areas_id }) => {
-      const data = await httpJson<any>(CORE_BASE, `/visual/category/area/${areas_id}`, { method: 'GET' });
+        const qs = new URLSearchParams();
+        if (areas_id) qs.set('areas', areas_id.join(','));
+        const data = await httpJson<any>(CORE_BASE, `/visual/category/area?${qs.toString()}`, { method: 'GET' });
       return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
     }
   );
@@ -310,7 +312,7 @@ export function buildOneAppServer(): McpServer {
     async ({ reason_id }) => {
       const qs = new URLSearchParams();
       if (reason_id) qs.set('reason_id', String(reason_id));
-      const path = `/visual/razones${qs.toString() ? `?${qs.toString()}` : ''}`;
+      const path = `/visual/reason${qs.toString() ? `?${qs.toString()}` : ''}`;
       const data = await httpJson<any>(CORE_BASE, path, { method: 'GET' });
       return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
     }
@@ -323,7 +325,9 @@ export function buildOneAppServer(): McpServer {
       categories_id: z.array(z.number().int()).describe('Listado de ids de categorias de visuales')
     },
     async ({ categories_id }) => {
-      const data = await httpJson<any>(CORE_BASE, `/visual/reason/categories/${categories_id}`, { method: 'GET' });
+        const qs = new URLSearchParams();
+        if (categories_id) qs.set('categories', categories_id.join(','));
+      const data = await httpJson<any>(CORE_BASE, `/visual/reason/categories?${qs.toString()}`, { method: 'GET' });
       return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
     }
   );
