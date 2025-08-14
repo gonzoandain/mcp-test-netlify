@@ -319,8 +319,8 @@ export function buildOneAppServer(): McpServer {
   );
 
   server.tool(
-    'visual_categoria_razones',
-    'Devuelve los criterios de evaluación de campañas visuales asociadas a un listado de categorias. Es recomendable haber preguntado por categorias y areas previamente.',
+    'visual_area_categoria_razones',
+    'Devuelve los criterios de evaluación de campañas visuales asociadas a un listado de areas_categorias. Es recomendable haber preguntado por categorias y areas previamente. La relacion es muchos a muchos',
     {
       categories_id: z.array(z.number().int()).describe('Listado de ids de categorias de visuales')
     },
