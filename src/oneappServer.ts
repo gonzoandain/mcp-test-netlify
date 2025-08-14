@@ -298,7 +298,7 @@ export function buildOneAppServer(): McpServer {
     async ({ areas_id }) => {
         const qs = new URLSearchParams();
         if (areas_id) qs.set('areas', areas_id.join(','));
-        const data = await httpJson<any>(CORE_BASE, `/visual/category/area?${qs.toString()}`, { method: 'GET' });
+        const data = await httpJson<any>(CORE_BASE, `/visual/category/areas?${qs.toString()}`, { method: 'GET' });
       return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
     }
   );
