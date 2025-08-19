@@ -261,7 +261,7 @@ export function buildOneAppServer(): McpServer {
 
   server.tool(
     'visual_areas',
-    '222Devuelve las áreas del modulo de visapp o visuales disponibles en el cliente. Permite filtrar con el query param area_id para recuperar un area específica.',
+    'Devuelve las áreas del modulo de visapp o visuales disponibles en el cliente. Permite filtrar con el query param area_id para recuperar un area específica.',
     {
       area_id: z.number().int().optional().describe('ID del area visual (opcional)')
     },
@@ -340,10 +340,14 @@ export function buildOneAppServer(): McpServer {
       criterios: z.array(z.string()).describe('Listado de criterios de evaluación')
     },
     async ({ foto_url, criterios }) => {
-      const formData = new FormData();
-      formData.append('file', foto_url);
-      formData.append('criterios', JSON.stringify(criterios));
-      const data = await httpJson<any>(CORE_BASE, '/visual/moai', { method: 'POST', body: formData });
+      const requestBody = {
+        foto_url,
+        criterios
+      };
+      const data = await httpJson<any>(CORE_BASE, '/visual/moai', { 
+        method: 'POST', 
+        body: JSON.stringify(requestBody)
+      });
       return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
     }
   );
