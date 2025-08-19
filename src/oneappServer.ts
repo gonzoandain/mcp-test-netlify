@@ -332,5 +332,21 @@ export function buildOneAppServer(): McpServer {
     }
   );
 
+  server.tool(
+    'moai_visapp_foto',
+    'Permite subir una foto y sus criterios de evaluación para Visapp MoAI',
+    {
+      foto_url: z.string().url().describe('URL de la foto a subir'),
+      criterios: z.array(z.string()).describe('Listado de criterios de evaluación')
+    },
+    async ({ foto_url, criterios }) => {
+      const formData = new FormData();
+      formData.append('file', foto_url);
+      formData.append('criterios', JSON.stringify(criterios));
+      const data = await httpJson<any>(CORE_BASE, '/visual/moai', { method: 'POST', body: formData });
+      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+    }
+  );
+
   return server;
 }
