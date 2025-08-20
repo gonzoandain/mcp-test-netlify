@@ -352,5 +352,19 @@ export function buildOneAppServer(): McpServer {
     }
   );
 
+    server.tool(
+    'moai_visapp_foto_info',
+    'Obtiene la lista completa de fotos de Visapp con Moai registradas para el cliente autenticado (sin parámetros adicionales).',
+    async () => { 
+      try {
+        const data = await httpJson<any>(CORE_BASE, '/visual/moai', { method: 'GET' });
+        return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+      } catch (error) {
+        console.error('Request failed:', error);
+        throw error;
+      }
+    }
+  );
+
   return server;
 }
