@@ -10,9 +10,27 @@ import { buildOneAppServer } from '../../src/oneappServer.js';
 
 /** Cache the server across invocations (Netlify keeps the function "warm") */
 let cached: McpServer | null = null;
+let cachedEnvHash: string | null = null;
+
 function getServer(): McpServer {
-  if (cached) return cached;
-  cached = buildOneAppServer();
+  // Crear un hash de las variables de entorno relevantes
+  const envHash = [
+    process.env.CORE_BASE_URL,
+    process.env.CLIENT_BASE_URL,
+    process.env.AUTHORIZATION,
+    process.env.CLIENT_HEADER,
+  ].join('|');
+  
+  // Si las variables cambiaron, invalidar el cache
+  if (cached && cachedEnvHash !== envHash) {
+    cached = null;
+  }
+  
+  if (!cached) {
+    cached = buildOneAppServer();
+    cachedEnvHash = envHash;
+  }
+  
   return cached;
 }
 
