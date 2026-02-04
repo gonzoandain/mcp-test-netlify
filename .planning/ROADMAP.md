@@ -36,14 +36,15 @@ Plans:
 **Requirements**: CLID-01, CLID-02, CLID-03, CACHE-01, CACHE-02, CACHE-03
 **Success Criteria** (what must be TRUE):
   1. Request with X-Client-ID header gets response using that client's config
-  2. Request without X-Client-ID header returns 400 with message "Missing X-Client-ID header"
-  3. Request with unknown X-Client-ID returns 400 with message "Unknown client ID: [id]"
+  2. Request without X-Client-ID header returns 403 with message "Missing X-Client-ID header"
+  3. Request with unknown X-Client-ID returns 403 with message "Unknown client ID: [id]"
   4. Second request for same client ID reuses cached server instance (no re-initialization)
   5. Requests for different clients use different server instances
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 02-01: TBD
+- [ ] 02-01-PLAN.md - Create routing and cache modules (header validation, TTL cache)
+- [ ] 02-02-PLAN.md - Integrate routing into mcp.ts handler
 
 ## Progress
 
@@ -52,9 +53,9 @@ Phases execute in numeric order: 1 -> 1.1 -> 1.2 -> 2
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation Refactoring | 2/2 | ✓ Complete | 2026-02-04 |
-| 2. Multi-tenant Routing | 0/? | Not started | - |
+| 1. Foundation Refactoring | 2/2 | Complete | 2026-02-04 |
+| 2. Multi-tenant Routing | 0/2 | Planned | - |
 
 ---
 *Roadmap created: 2026-02-04*
-*Last updated: 2026-02-04 - Phase 1 complete*
+*Last updated: 2026-02-04 - Phase 2 planned*
