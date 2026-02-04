@@ -24,10 +24,11 @@ Transform the existing single-client MCP server into a multi-tenant system. Phas
   2. `httpJson()` uses config passed to it, not module-level constants
   3. CLIENTS_CONFIG env var parsed at startup and available as typed object
   4. Server can be instantiated with config for any client defined in CLIENTS_CONFIG
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 01-01: TBD
+- [ ] 01-01-PLAN.md - Refactor server to accept config parameter (types, httpJson, buildOneAppServer)
+- [ ] 01-02-PLAN.md - Add CLIENTS_CONFIG parsing and accessor functions
 
 ### Phase 2: Multi-tenant Routing
 **Goal**: Requests are routed to correct client based on X-Client-ID header
@@ -51,7 +52,7 @@ Phases execute in numeric order: 1 -> 1.1 -> 1.2 -> 2
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation Refactoring | 0/? | Not started | - |
+| 1. Foundation Refactoring | 0/2 | Planned | - |
 | 2. Multi-tenant Routing | 0/? | Not started | - |
 
 ---
