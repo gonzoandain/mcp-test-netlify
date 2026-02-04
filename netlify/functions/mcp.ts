@@ -1,48 +1,14 @@
 // netlify/functions/mcp.ts
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { toFetchResponse, toReqRes } from 'fetch-to-node';
 import type { JSONRPCError } from '@modelcontextprotocol/sdk/types.js';
 import { randomUUID } from 'node:crypto';
 import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
 
 import { buildOneAppServer } from '../../src/oneappServer.js';
-import { ClientConfig } from '../../src/types.js';
-
-/** Cache the server across invocations (Netlify keeps the function "warm") */
-let cached: McpServer | null = null;
-let cachedEnvHash: string | null = null;
-
-function getServer(): McpServer {
-  // Build config from environment variables
-  const config: ClientConfig = {
-    authorization: process.env.AUTHORIZATION || '',
-    coreBaseUrl: process.env.CORE_BASE_URL || 'https://api.oneapp.cl',
-    clientBaseUrl: process.env.CLIENT_BASE_URL || 'https://sechpos.oneapp.cl',
-    clientHeader: process.env.CLIENT_HEADER || '',
-    httpTimeoutMs: parseInt(process.env.HTTP_TIMEOUT_MS || '30000', 10),
-  };
-
-  // Create hash of config values for cache invalidation
-  const envHash = [
-    config.coreBaseUrl,
-    config.clientBaseUrl,
-    config.authorization,
-    config.clientHeader,
-  ].join('|');
-
-  // If config changed, invalidate cache
-  if (cached && cachedEnvHash !== envHash) {
-    cached = null;
-  }
-
-  if (!cached) {
-    cached = buildOneAppServer(config);
-    cachedEnvHash = envHash;
-  }
-
-  return cached;
-}
+import { validateClientHeader, createErrorResponse, ERROR_CODES, createUnknownClientError } from '../../src/routing.js';
+import { serverCache } from '../../src/cache.js';
+import { getClientConfig } from '../../src/config.js';
 
 // Store transports by session ID for proper session management
 const transports: { [sessionId: string]: StreamableHTTPServerTransport } = {};
@@ -54,6 +20,32 @@ export default async function handler(req: Request): Promise<Response> {
   try {
     if (req.method !== 'POST') {
       return new Response('Method not allowed', { status: 405 });
+    }
+
+    // === Multi-tenant routing ===
+    const headerValidation = validateClientHeader(req.headers);
+    if (!headerValidation.success) {
+      // Per CONTEXT.md: 403 for missing/invalid, 400 for duplicate
+      const status = headerValidation.error.code === ERROR_CODES.DUPLICATE_CLIENT_ID ? 400 : 403;
+      return createErrorResponse(headerValidation.error, status);
+    }
+
+    const clientId = headerValidation.clientId;
+
+    // Check if client exists in config
+    const clientConfig = getClientConfig(clientId);
+    if (!clientConfig) {
+      return createErrorResponse(createUnknownClientError(clientId), 403);
+    }
+
+    // Get or create server for this client (lazy init with TTL cache)
+    let mcpServer = serverCache.get(clientId);
+    if (!mcpServer) {
+      mcpServer = buildOneAppServer(clientConfig);
+      serverCache.set(clientId, mcpServer);
+      console.log(`Created new MCP server for client: ${clientId}`);
+    } else {
+      console.log(`Reusing cached MCP server for client: ${clientId}`);
     }
 
     // Netlify gives us Web-standard Request/Response objects; MCP wants Node req/res
@@ -94,9 +86,8 @@ export default async function handler(req: Request): Promise<Response> {
       };
 
       // Connect the transport to the MCP server
-      const server = getServer();
-      await server.connect(transport);
-      
+      await mcpServer.connect(transport);
+
       // Store immediately by request session ID if present
       if (sessionId) {
         transports[sessionId] = transport;
@@ -130,9 +121,8 @@ export default async function handler(req: Request): Promise<Response> {
       };
 
       // Connect the transport to the MCP server
-      const server = getServer();
-      await server.connect(transport);
-      
+      await mcpServer.connect(transport);
+
       // Store the transport
       transports[finalSessionId] = transport;
       
