@@ -11,7 +11,7 @@ Transform the existing single-client MCP server into a multi-tenant system. Phas
 - Decimal phases (1.1, 1.2): Urgent insertions (marked with INSERTED)
 
 - [x] **Phase 1: Foundation Refactoring** - Make server config-driven instead of env-var-driven
-- [ ] **Phase 2: Multi-tenant Routing** - Add client identification and per-client server caching
+- [x] **Phase 2: Multi-tenant Routing** - Add client identification and per-client server caching
 
 ## Phase Details
 
@@ -43,8 +43,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 02-01-PLAN.md - Create routing and cache modules (header validation, TTL cache)
-- [ ] 02-02-PLAN.md - Integrate routing into mcp.ts handler
+- [x] 02-01-PLAN.md - Create routing and cache modules (header validation, TTL cache)
+- [x] 02-02-PLAN.md - Integrate routing into mcp.ts handler
 
 ## Progress
 
@@ -54,8 +54,8 @@ Phases execute in numeric order: 1 -> 1.1 -> 1.2 -> 2
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation Refactoring | 2/2 | Complete | 2026-02-04 |
-| 2. Multi-tenant Routing | 0/2 | Planned | - |
+| 2. Multi-tenant Routing | 2/2 | Complete | 2026-02-04 |
 
 ---
 *Roadmap created: 2026-02-04*
-*Last updated: 2026-02-04 - Phase 2 planned*
+*Last updated: 2026-02-04 - Phase 2 complete, milestone complete*

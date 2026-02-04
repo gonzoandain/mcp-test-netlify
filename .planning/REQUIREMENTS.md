@@ -9,9 +9,9 @@ Requirements for multi-tenant support.
 
 ### Client Identification
 
-- [ ] **CLID-01**: Function extracts X-Client-ID header from incoming requests
-- [ ] **CLID-02**: Missing X-Client-ID header returns 400 error with clear message
-- [ ] **CLID-03**: Unknown client ID returns 400 error with clear message
+- [x] **CLID-01**: Function extracts X-Client-ID header from incoming requests
+- [x] **CLID-02**: Missing X-Client-ID header returns 403 error with clear message (403 chosen over 400 for security)
+- [x] **CLID-03**: Unknown client ID returns 403 error with clear message (403 chosen over 400 for security)
 
 ### Configuration
 
@@ -21,9 +21,9 @@ Requirements for multi-tenant support.
 
 ### Server Caching
 
-- [ ] **CACHE-01**: MCP server cached per client ID (not globally)
-- [ ] **CACHE-02**: Server for client X reused across requests for client X
-- [ ] **CACHE-03**: Different clients get different server instances
+- [x] **CACHE-01**: MCP server cached per client ID (not globally)
+- [x] **CACHE-02**: Server for client X reused across requests for client X
+- [x] **CACHE-03**: Different clients get different server instances
 
 ### Refactoring
 
@@ -58,15 +58,15 @@ Deferred to future release.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CLID-01 | Phase 2 | Pending |
-| CLID-02 | Phase 2 | Pending |
-| CLID-03 | Phase 2 | Pending |
+| CLID-01 | Phase 2 | Complete |
+| CLID-02 | Phase 2 | Complete |
+| CLID-03 | Phase 2 | Complete |
 | CONF-01 | Phase 1 | Complete |
 | CONF-02 | Phase 1 | Complete |
 | CONF-03 | Phase 1 | Complete |
-| CACHE-01 | Phase 2 | Pending |
-| CACHE-02 | Phase 2 | Pending |
-| CACHE-03 | Phase 2 | Pending |
+| CACHE-01 | Phase 2 | Complete |
+| CACHE-02 | Phase 2 | Complete |
+| CACHE-03 | Phase 2 | Complete |
 | REFAC-01 | Phase 1 | Complete |
 | REFAC-02 | Phase 1 | Complete |
 
@@ -77,4 +77,4 @@ Deferred to future release.
 
 ---
 *Requirements defined: 2026-02-04*
-*Last updated: 2026-02-04 - Phase 1 requirements complete*
+*Last updated: 2026-02-04 - All v1 requirements complete*
