@@ -10,7 +10,7 @@ Transform the existing single-client MCP server into a multi-tenant system. Phas
 - Integer phases (1, 2): Planned milestone work
 - Decimal phases (1.1, 1.2): Urgent insertions (marked with INSERTED)
 
-- [ ] **Phase 1: Foundation Refactoring** - Make server config-driven instead of env-var-driven
+- [x] **Phase 1: Foundation Refactoring** - Make server config-driven instead of env-var-driven
 - [ ] **Phase 2: Multi-tenant Routing** - Add client identification and per-client server caching
 
 ## Phase Details
@@ -27,8 +27,8 @@ Transform the existing single-client MCP server into a multi-tenant system. Phas
 **Plans**: 2 plans
 
 Plans:
-- [ ] 01-01-PLAN.md - Refactor server to accept config parameter (types, httpJson, buildOneAppServer)
-- [ ] 01-02-PLAN.md - Add CLIENTS_CONFIG parsing and accessor functions
+- [x] 01-01-PLAN.md - Refactor server to accept config parameter (types, httpJson, buildOneAppServer)
+- [x] 01-02-PLAN.md - Add CLIENTS_CONFIG parsing and accessor functions
 
 ### Phase 2: Multi-tenant Routing
 **Goal**: Requests are routed to correct client based on X-Client-ID header
@@ -52,9 +52,9 @@ Phases execute in numeric order: 1 -> 1.1 -> 1.2 -> 2
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation Refactoring | 0/2 | Planned | - |
+| 1. Foundation Refactoring | 2/2 | ✓ Complete | 2026-02-04 |
 | 2. Multi-tenant Routing | 0/? | Not started | - |
 
 ---
 *Roadmap created: 2026-02-04*
-*Last updated: 2026-02-04*
+*Last updated: 2026-02-04 - Phase 1 complete*

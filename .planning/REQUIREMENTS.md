@@ -15,9 +15,9 @@ Requirements for multi-tenant support.
 
 ### Configuration
 
-- [ ] **CONF-01**: All client configs stored in CLIENTS_CONFIG env var as JSON
-- [ ] **CONF-02**: Each client config has: authorization, baseUrl, clientHeader
-- [ ] **CONF-03**: Config parsed once at startup, not per-request
+- [x] **CONF-01**: All client configs stored in CLIENTS_CONFIG env var as JSON
+- [x] **CONF-02**: Each client config has: authorization, baseUrl, clientHeader
+- [x] **CONF-03**: Config parsed once at startup, not per-request
 
 ### Server Caching
 
@@ -27,8 +27,8 @@ Requirements for multi-tenant support.
 
 ### Refactoring
 
-- [ ] **REFAC-01**: buildOneAppServer accepts config parameter instead of reading env vars
-- [ ] **REFAC-02**: httpJson uses passed config instead of module-level constants
+- [x] **REFAC-01**: buildOneAppServer accepts config parameter instead of reading env vars
+- [x] **REFAC-02**: httpJson uses passed config instead of module-level constants
 
 ## v2 Requirements
 
@@ -61,14 +61,14 @@ Deferred to future release.
 | CLID-01 | Phase 2 | Pending |
 | CLID-02 | Phase 2 | Pending |
 | CLID-03 | Phase 2 | Pending |
-| CONF-01 | Phase 1 | Pending |
-| CONF-02 | Phase 1 | Pending |
-| CONF-03 | Phase 1 | Pending |
+| CONF-01 | Phase 1 | Complete |
+| CONF-02 | Phase 1 | Complete |
+| CONF-03 | Phase 1 | Complete |
 | CACHE-01 | Phase 2 | Pending |
 | CACHE-02 | Phase 2 | Pending |
 | CACHE-03 | Phase 2 | Pending |
-| REFAC-01 | Phase 1 | Pending |
-| REFAC-02 | Phase 1 | Pending |
+| REFAC-01 | Phase 1 | Complete |
+| REFAC-02 | Phase 1 | Complete |
 
 **Coverage:**
 - v1 requirements: 11 total
@@ -77,4 +77,4 @@ Deferred to future release.
 
 ---
 *Requirements defined: 2026-02-04*
-*Last updated: 2026-02-04 after roadmap creation*
+*Last updated: 2026-02-04 - Phase 1 requirements complete*
