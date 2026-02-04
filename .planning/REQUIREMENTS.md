@@ -58,23 +58,23 @@ Deferred to future release.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CLID-01 | TBD | Pending |
-| CLID-02 | TBD | Pending |
-| CLID-03 | TBD | Pending |
-| CONF-01 | TBD | Pending |
-| CONF-02 | TBD | Pending |
-| CONF-03 | TBD | Pending |
-| CACHE-01 | TBD | Pending |
-| CACHE-02 | TBD | Pending |
-| CACHE-03 | TBD | Pending |
-| REFAC-01 | TBD | Pending |
-| REFAC-02 | TBD | Pending |
+| CLID-01 | Phase 2 | Pending |
+| CLID-02 | Phase 2 | Pending |
+| CLID-03 | Phase 2 | Pending |
+| CONF-01 | Phase 1 | Pending |
+| CONF-02 | Phase 1 | Pending |
+| CONF-03 | Phase 1 | Pending |
+| CACHE-01 | Phase 2 | Pending |
+| CACHE-02 | Phase 2 | Pending |
+| CACHE-03 | Phase 2 | Pending |
+| REFAC-01 | Phase 1 | Pending |
+| REFAC-02 | Phase 1 | Pending |
 
 **Coverage:**
 - v1 requirements: 11 total
-- Mapped to phases: 0
-- Unmapped: 11
+- Mapped to phases: 11
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-04*
-*Last updated: 2026-02-04 after initial definition*
+*Last updated: 2026-02-04 after roadmap creation*
