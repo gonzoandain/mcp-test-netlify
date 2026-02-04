@@ -1,0 +1,80 @@
+# Requirements: OneApp MCP Server - Multi-tenant
+
+**Defined:** 2026-02-04
+**Core Value:** One deployment serves all clients — no more manual env var switching
+
+## v1 Requirements
+
+Requirements for multi-tenant support.
+
+### Client Identification
+
+- [ ] **CLID-01**: Function extracts X-Client-ID header from incoming requests
+- [ ] **CLID-02**: Missing X-Client-ID header returns 400 error with clear message
+- [ ] **CLID-03**: Unknown client ID returns 400 error with clear message
+
+### Configuration
+
+- [ ] **CONF-01**: All client configs stored in CLIENTS_CONFIG env var as JSON
+- [ ] **CONF-02**: Each client config has: authorization, baseUrl, clientHeader
+- [ ] **CONF-03**: Config parsed once at startup, not per-request
+
+### Server Caching
+
+- [ ] **CACHE-01**: MCP server cached per client ID (not globally)
+- [ ] **CACHE-02**: Server for client X reused across requests for client X
+- [ ] **CACHE-03**: Different clients get different server instances
+
+### Refactoring
+
+- [ ] **REFAC-01**: buildOneAppServer accepts config parameter instead of reading env vars
+- [ ] **REFAC-02**: httpJson uses passed config instead of module-level constants
+
+## v2 Requirements
+
+Deferred to future release.
+
+### Observability
+
+- **OBS-01**: Log which client ID was used for each request
+- **OBS-02**: Track per-client request counts
+
+### Configuration Management
+
+- **CFGM-01**: Validate config schema at startup
+- **CFGM-02**: Warn if config is missing expected fields
+
+## Out of Scope
+
+| Feature | Reason |
+|---------|--------|
+| External config database | Env var is simpler, no external dependencies |
+| Subdomain routing | Header-based is cleaner, no DNS setup needed |
+| Default client fallback | Explicit errors prevent silent misrouting |
+| Hot reload configs | Redeploy is fine for config changes |
+| Per-client rate limiting | Not needed for current scale |
+
+## Traceability
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| CLID-01 | TBD | Pending |
+| CLID-02 | TBD | Pending |
+| CLID-03 | TBD | Pending |
+| CONF-01 | TBD | Pending |
+| CONF-02 | TBD | Pending |
+| CONF-03 | TBD | Pending |
+| CACHE-01 | TBD | Pending |
+| CACHE-02 | TBD | Pending |
+| CACHE-03 | TBD | Pending |
+| REFAC-01 | TBD | Pending |
+| REFAC-02 | TBD | Pending |
+
+**Coverage:**
+- v1 requirements: 11 total
+- Mapped to phases: 0
+- Unmapped: 11
+
+---
+*Requirements defined: 2026-02-04*
+*Last updated: 2026-02-04 after initial definition*
