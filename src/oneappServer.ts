@@ -1,90 +1,68 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
+import { ClientConfig } from './types.js';
 
-// Load environment variables from .env file only in development
-if (process.env.NODE_ENV !== 'production') {
-  try {
-    const dotenv = await import('dotenv');
-    const result = dotenv.config();
-    console.log('Development: Loading .env file -', result.error ? `Error: ${result.error}` : 'Success');
-  } catch (error) {
-    console.log('Development: dotenv not available, using system environment variables');
-  }
-}
+// Default HTTP timeout in milliseconds
+const DEFAULT_HTTP_TIMEOUT_MS = 30000;
 
-// Configuration constants
-const CORE_BASE = process.env.CORE_BASE_URL || 'https://api.oneapp.cl';
-const CLIENT_BASE = process.env.CLIENT_BASE_URL || 'https://sechpos.oneapp.cl';
-const AUTHORIZATION = process.env.AUTHORIZATION || '';
-const CLIENT_HEADER = process.env.CLIENT_HEADER || '';
-const HTTP_TIMEOUT_MS = parseInt(process.env.HTTP_TIMEOUT_MS || '30000', 10);
+export function buildOneAppServer(config: ClientConfig): McpServer {
+  const timeoutMs = config.httpTimeoutMs ?? DEFAULT_HTTP_TIMEOUT_MS;
 
-// Debug: Log environment variable status at startup (only in development)
-if (process.env.NODE_ENV !== 'production') {
-  console.log('Environment variables loaded:');
-  console.log('- CORE_BASE_URL:', process.env.CORE_BASE_URL ? '[SET]' : '[NOT SET]');
-  console.log('- CLIENT_BASE_URL:', process.env.CLIENT_BASE_URL ? '[SET]' : '[NOT SET]');
-  console.log('- AUTHORIZATION:', process.env.AUTHORIZATION ? '[SET]' : '[NOT SET]');
-  console.log('- CLIENT_HEADER:', process.env.CLIENT_HEADER ? '[SET]' : '[NOT SET]');
-}
+  // HTTP helper function - uses config via closure
+  async function httpJson<T>(baseUrl: string, path: string, options: RequestInit = {}): Promise<T> {
+    const url = new URL(path, baseUrl);
 
-// HTTP helper function
-async function httpJson<T>(baseUrl: string, path: string, options: RequestInit = {}): Promise<T> {
-  const url = new URL(path, baseUrl);
-  
-  // Set up headers with authentication and client info
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-    ...options.headers as Record<string, string>,
-  };
-  
-  // Add authorization header if available
-  if (AUTHORIZATION) {
-    headers['Authorization'] = AUTHORIZATION;
-  }
-  
-  // Add client header if available
-  if (CLIENT_HEADER) {
-    headers['client'] = CLIENT_HEADER;
-  }
-  
-  
-  // Create abort controller for timeout
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), HTTP_TIMEOUT_MS);
-  
-  try {
-    const response = await fetch(url.toString(), {
-      ...options,
-      headers,
-      signal: controller.signal,
-    });
-    
-    clearTimeout(timeoutId);
-    
-    if (!response.ok) {
-      // Enhanced error logging for debugging
-      const errorText = await response.text();
-      console.error('HTTP Error Response:', {
-        status: response.status,
-        statusText: response.statusText,
-        headers: Object.fromEntries(response.headers.entries()),
-        body: errorText
+    // Set up headers with authentication and client info
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      ...options.headers as Record<string, string>,
+    };
+
+    // Add authorization header if available
+    if (config.authorization) {
+      headers['Authorization'] = config.authorization;
+    }
+
+    // Add client header if available
+    if (config.clientHeader) {
+      headers['client'] = config.clientHeader;
+    }
+
+    // Create abort controller for timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+    try {
+      const response = await fetch(url.toString(), {
+        ...options,
+        headers,
+        signal: controller.signal,
       });
-      throw new Error(`HTTP ${response.status}: ${response.statusText} - ${errorText}`);
-    }
-    
-    return response.json();
-  } catch (error) {
-    clearTimeout(timeoutId);
-    if (error instanceof Error && error.name === 'AbortError') {
-      throw new Error(`Request timeout after ${HTTP_TIMEOUT_MS}ms`);
-    }
-    throw error;
-  }
-}
 
-export function buildOneAppServer(): McpServer {
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        // Enhanced error logging for debugging
+        const errorText = await response.text();
+        console.error('HTTP Error Response:', {
+          status: response.status,
+          statusText: response.statusText,
+          headers: Object.fromEntries(response.headers.entries()),
+          body: errorText
+        });
+        throw new Error(`HTTP ${response.status}: ${response.statusText} - ${errorText}`);
+      }
+
+      return response.json();
+    } catch (error) {
+      clearTimeout(timeoutId);
+      if (error instanceof Error && error.name === 'AbortError') {
+        throw new Error(`Request timeout after ${timeoutMs}ms`);
+      }
+      throw error;
+    }
+  }
+
   const server = new McpServer({ name: 'oneapp-mcp', version: '0.1.0' });
 
   // Core API tools
@@ -93,7 +71,7 @@ export function buildOneAppServer(): McpServer {
     'Obtiene la lista completa de sucursales registradas para el cliente autenticado (sin parámetros adicionales).',
     async () => { 
       try {
-        const data = await httpJson<any>(CORE_BASE, '/core/sucursales', { method: 'GET' });
+        const data = await httpJson<any>(config.coreBaseUrl, '/core/sucursales', { method: 'GET' });
         return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
       } catch (error) {
         console.error('Request failed:', error);
@@ -112,7 +90,7 @@ export function buildOneAppServer(): McpServer {
       const qs = new URLSearchParams();
       if (typeof zone_id === 'number') qs.set('zone_id', String(zone_id));
       const path = '/core/zonas' + (qs.toString() ? `?${qs.toString()}` : '');
-      const data = await httpJson<any>(CORE_BASE, path, { method: 'GET' });
+      const data = await httpJson<any>(config.coreBaseUrl, path, { method: 'GET' });
       return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
     }
   );
@@ -121,7 +99,7 @@ export function buildOneAppServer(): McpServer {
     'core_list_subgerencias',
     'Devuelve todas las subgerencias asociadas al cliente.',
     async () => {
-      const data = await httpJson<any>(CORE_BASE, '/core/subgerencias', { method: 'GET' });
+      const data = await httpJson<any>(config.coreBaseUrl, '/core/subgerencias', { method: 'GET' });
       return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
     }
   );
@@ -133,7 +111,7 @@ export function buildOneAppServer(): McpServer {
       id: z.number().int().describe('ID de subgerencia')
     },
     async ({ id }) => {
-      const data = await httpJson<any>(CORE_BASE, `/core/subgerencias/${id}/zonas`, { method: 'GET' });
+      const data = await httpJson<any>(config.coreBaseUrl, `/core/subgerencias/${id}/zonas`, { method: 'GET' });
       return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
     }
   );
@@ -145,7 +123,7 @@ export function buildOneAppServer(): McpServer {
       zone_id: z.number().int().describe('ID de la zona')
     },
     async ({ zone_id }) => {
-      const data = await httpJson<any>(CORE_BASE, `/core/zonas/${zone_id}/sucursales`, { method: 'GET' });
+      const data = await httpJson<any>(config.coreBaseUrl, `/core/zonas/${zone_id}/sucursales`, { method: 'GET' });
       return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
     }
   );
@@ -165,7 +143,7 @@ export function buildOneAppServer(): McpServer {
       if (limit) qs.set('limit', String(limit));
       if (search) qs.set('search', search);
       const path = `/front/api/checklist/data/checks${qs.size ? `?${qs.toString()}` : ''}`;
-      const data = await httpJson<any>(CLIENT_BASE, path, { method: 'GET' });
+      const data = await httpJson<any>(config.clientBaseUrl, path, { method: 'GET' });
       return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
     }
   );
@@ -182,7 +160,7 @@ export function buildOneAppServer(): McpServer {
       const qs = new URLSearchParams({ check_id: String(check_id) });
       if (page) qs.set('page', String(page));
       if (limit) qs.set('limit', String(limit));
-      const data = await httpJson<any>(CLIENT_BASE, `/front/api/checklist/data/ambitos?${qs.toString()}`, { method: 'GET' });
+      const data = await httpJson<any>(config.clientBaseUrl, `/front/api/checklist/data/ambitos?${qs.toString()}`, { method: 'GET' });
       return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
     }
   );
@@ -195,7 +173,7 @@ export function buildOneAppServer(): McpServer {
     },
     async ({ check_id }) => {
       const qs = new URLSearchParams({ check_id: String(check_id) });
-      const data = await httpJson<any>(CLIENT_BASE, `/front/api/checklist/data/preguntas?${qs.toString()}`, { method: 'GET' });
+      const data = await httpJson<any>(config.clientBaseUrl, `/front/api/checklist/data/preguntas?${qs.toString()}`, { method: 'GET' });
       return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
     }
   );
@@ -218,7 +196,7 @@ export function buildOneAppServer(): McpServer {
       });
       if (page) qs.set('page', String(page));
       if (limit) qs.set('limit', String(limit));
-      const data = await httpJson<any>(CLIENT_BASE, `/front/api/checklist/data/cuestionarios?${qs.toString()}`, { method: 'GET' });
+      const data = await httpJson<any>(config.clientBaseUrl, `/front/api/checklist/data/cuestionarios?${qs.toString()}`, { method: 'GET' });
       return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
     }
   );
@@ -235,7 +213,7 @@ export function buildOneAppServer(): McpServer {
       const qs = new URLSearchParams({ cuestionario_id: String(cuestionario_id) });
       if (page) qs.set('page', String(page));
       if (limit) qs.set('limit', String(limit));
-      const data = await httpJson<any>(CLIENT_BASE, `/front/api/checklist/data/asignaciones?${qs.toString()}`, { method: 'GET' });
+      const data = await httpJson<any>(config.clientBaseUrl, `/front/api/checklist/data/asignaciones?${qs.toString()}`, { method: 'GET' });
       return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
     }
   );
@@ -254,7 +232,7 @@ export function buildOneAppServer(): McpServer {
       if (typeof asignacion_id === 'number') qs.set('asignacion_id', String(asignacion_id));
       if (page) qs.set('page', String(page));
       if (limit) qs.set('limit', String(limit));
-      const data = await httpJson<any>(CLIENT_BASE, `/front/api/checklist/data/respuestas?${qs.toString()}`, { method: 'GET' });
+      const data = await httpJson<any>(config.clientBaseUrl, `/front/api/checklist/data/respuestas?${qs.toString()}`, { method: 'GET' });
       return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
     }
   );
@@ -269,7 +247,7 @@ export function buildOneAppServer(): McpServer {
       const qs = new URLSearchParams();
       if (area_id) qs.set('id', String(area_id));
       const path = `/visual/area${qs.toString() ? `?${qs.toString()}` : ''}`;
-      const data = await httpJson<any>(CORE_BASE, path, { method: 'GET' });
+      const data = await httpJson<any>(config.coreBaseUrl, path, { method: 'GET' });
       return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
     }
   );
@@ -284,7 +262,7 @@ export function buildOneAppServer(): McpServer {
       const qs = new URLSearchParams();
       if (category_id) qs.set('id', String(category_id));
       const path = `/visual/category${qs.toString() ? `?${qs.toString()}` : ''}`;
-      const data = await httpJson<any>(CORE_BASE, path, { method: 'GET' });
+      const data = await httpJson<any>(config.coreBaseUrl, path, { method: 'GET' });
       return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
     }
   );
@@ -298,7 +276,7 @@ export function buildOneAppServer(): McpServer {
     async ({ areas_id }) => {
         const qs = new URLSearchParams();
         if (areas_id) qs.set('areas', areas_id.join(','));
-        const data = await httpJson<any>(CORE_BASE, `/visual/category/areas?${qs.toString()}`, { method: 'GET' });
+        const data = await httpJson<any>(config.coreBaseUrl, `/visual/category/areas?${qs.toString()}`, { method: 'GET' });
       return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
     }
   );
@@ -313,7 +291,7 @@ export function buildOneAppServer(): McpServer {
       const qs = new URLSearchParams();
       if (reason_id) qs.set('reason_id', String(reason_id));
       const path = `/visual/reason${qs.toString() ? `?${qs.toString()}` : ''}`;
-      const data = await httpJson<any>(CORE_BASE, path, { method: 'GET' });
+      const data = await httpJson<any>(config.coreBaseUrl, path, { method: 'GET' });
       return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
     }
   );
@@ -327,7 +305,7 @@ export function buildOneAppServer(): McpServer {
     async ({ categories_id }) => {
         const qs = new URLSearchParams();
         if (categories_id) qs.set('categories', categories_id.join(','));
-      const data = await httpJson<any>(CORE_BASE, `/visual/reason/categories?${qs.toString()}`, { method: 'GET' });
+      const data = await httpJson<any>(config.coreBaseUrl, `/visual/reason/categories?${qs.toString()}`, { method: 'GET' });
       return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
     }
   );
@@ -344,7 +322,7 @@ export function buildOneAppServer(): McpServer {
         foto_url,
         criterios
       };
-      const data = await httpJson<any>(CORE_BASE, '/visual/moai', { 
+      const data = await httpJson<any>(config.coreBaseUrl, '/visual/moai', { 
         method: 'POST', 
         body: JSON.stringify(requestBody)
       });
@@ -357,7 +335,7 @@ export function buildOneAppServer(): McpServer {
     'Obtiene la lista completa de fotos de Visapp con Moai registradas para el cliente autenticado (sin parámetros adicionales).',
     async () => { 
       try {
-        const data = await httpJson<any>(CORE_BASE, '/visual/moai', { method: 'GET' });
+        const data = await httpJson<any>(config.coreBaseUrl, '/visual/moai', { method: 'GET' });
         return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
       } catch (error) {
         console.error('Request failed:', error);
