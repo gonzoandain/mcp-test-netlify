@@ -7,30 +7,40 @@ import { randomUUID } from 'node:crypto';
 import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
 
 import { buildOneAppServer } from '../../src/oneappServer.js';
+import { ClientConfig } from '../../src/types.js';
 
 /** Cache the server across invocations (Netlify keeps the function "warm") */
 let cached: McpServer | null = null;
 let cachedEnvHash: string | null = null;
 
 function getServer(): McpServer {
-  // Crear un hash de las variables de entorno relevantes
+  // Build config from environment variables
+  const config: ClientConfig = {
+    authorization: process.env.AUTHORIZATION || '',
+    coreBaseUrl: process.env.CORE_BASE_URL || 'https://api.oneapp.cl',
+    clientBaseUrl: process.env.CLIENT_BASE_URL || 'https://sechpos.oneapp.cl',
+    clientHeader: process.env.CLIENT_HEADER || '',
+    httpTimeoutMs: parseInt(process.env.HTTP_TIMEOUT_MS || '30000', 10),
+  };
+
+  // Create hash of config values for cache invalidation
   const envHash = [
-    process.env.CORE_BASE_URL,
-    process.env.CLIENT_BASE_URL,
-    process.env.AUTHORIZATION,
-    process.env.CLIENT_HEADER,
+    config.coreBaseUrl,
+    config.clientBaseUrl,
+    config.authorization,
+    config.clientHeader,
   ].join('|');
-  
-  // Si las variables cambiaron, invalidar el cache
+
+  // If config changed, invalidate cache
   if (cached && cachedEnvHash !== envHash) {
     cached = null;
   }
-  
+
   if (!cached) {
-    cached = buildOneAppServer();
+    cached = buildOneAppServer(config);
     cachedEnvHash = envHash;
   }
-  
+
   return cached;
 }
 
