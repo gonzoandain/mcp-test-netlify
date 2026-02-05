@@ -2,7 +2,7 @@
 
 ## What This Is
 
-A Netlify-hosted MCP (Model Context Protocol) server that proxies API requests to OneApp's Core and Client APIs. Currently serves a single client via hardcoded env vars. This project adds multi-tenant support so one deployment can serve multiple clients, each with their own API credentials.
+A Netlify-hosted MCP (Model Context Protocol) server that proxies API requests to OneApp's Core and Client APIs. Supports multi-tenant operation where one deployment serves multiple clients via X-Client-ID header routing, each with their own API credentials stored in CLIENTS_CONFIG JSON env var.
 
 ## Core Value
 
@@ -19,15 +19,16 @@ One deployment serves all clients — no more manual env var switching to change
 - Tools for Checklist API (checks, ambitos, preguntas, cuestionarios) — existing
 - Tools for Visual API (areas, categorias, razones) — existing
 - Tools for MoAI (foto upload/info) — existing
+- ✓ Parse X-Client-ID header from incoming requests — v1
+- ✓ Load client configs from CLIENTS_CONFIG env var (JSON) — v1
+- ✓ Look up client config by ID on each request — v1
+- ✓ Return 403 error for missing or unknown client ID — v1
+- ✓ Cache separate MCP server per client (not one global cache) — v1
+- ✓ Pass client config to oneappServer instead of reading env vars — v1
 
 ### Active
 
-- [ ] Parse X-Client-ID header from incoming requests
-- [ ] Load client configs from CLIENTS_CONFIG env var (JSON)
-- [ ] Look up client config by ID on each request
-- [ ] Return 400 error for missing or unknown client ID
-- [ ] Cache separate MCP server per client (not one global cache)
-- [ ] Pass client config to oneappServer instead of reading env vars
+(None — ready for next milestone)
 
 ### Out of Scope
 
@@ -38,26 +39,29 @@ One deployment serves all clients — no more manual env var switching to change
 
 ## Context
 
-The server currently reads 4 env vars at startup: CORE_BASE_URL, CLIENT_BASE_URL, AUTHORIZATION, CLIENT_HEADER. To switch clients, you manually change these in Netlify dashboard — tedious and error-prone with multiple clients.
+Shipped v1 with 942 LOC TypeScript. Multi-tenant routing fully operational.
+Tech stack: Netlify Functions, MCP SDK, TypeScript.
 
-Client configs live in a markdown file outside this repo (for security). The JSON version will be copy-pasted into Netlify's CLIENTS_CONFIG env var.
-
-The MCP server is currently cached globally in mcp.ts with an env hash for invalidation. Multi-tenancy requires caching per client ID instead.
+Client configs stored in CLIENTS_CONFIG JSON env var. Each client gets isolated MCP server instance with 5-minute TTL cache.
 
 ## Constraints
 
 - **Platform**: Netlify Functions — no long-running server, stateless between cold starts
 - **Config source**: Netlify env vars only — no external config service
-- **Protocol**: MCP over HTTP POST to /mcp endpoint
+- **Protocol**: MCP over HTTP POST to /mcp endpoint with X-Client-ID header
 
 ## Key Decisions
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| X-Client-ID header for client identification | Clean, doesn't pollute URL, standard practice | — Pending |
-| JSON env var for all configs | Simple, no external dependencies, secrets stay in Netlify | — Pending |
-| Per-client server caching | Reuse MCP server across requests for same client | — Pending |
-| 400 error for invalid client | Explicit failure prevents silent misrouting | — Pending |
+| X-Client-ID header for client identification | Clean, doesn't pollute URL, standard practice | ✓ Good |
+| JSON env var for all configs | Simple, no external dependencies, secrets stay in Netlify | ✓ Good |
+| Per-client server caching | Reuse MCP server across requests for same client | ✓ Good |
+| 403 error for invalid client | Security-focused (was 400), prevents info leakage | ✓ Good |
+| Config-driven server factory | buildOneAppServer(config) enables multi-tenancy | ✓ Good |
+| Closure pattern for httpJson | Config captured per server instance, no globals | ✓ Good |
+| Fallback to legacy env vars | Backward compatibility during migration | ✓ Good |
+| 5-min TTL with reset-on-access | Efficient caching without memory bloat | ✓ Good |
 
 ---
-*Last updated: 2026-02-04 after initialization*
+*Last updated: 2026-02-04 after v1 milestone*

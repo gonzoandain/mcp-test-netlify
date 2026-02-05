@@ -1,3 +1,13 @@
+# Requirements Archive: v1 Multi-tenant
+
+**Archived:** 2026-02-04
+**Status:** ✅ SHIPPED
+
+This is the archived requirements specification for v1.
+For current requirements, see `.planning/REQUIREMENTS.md` (created for next milestone).
+
+---
+
 # Requirements: OneApp MCP Server - Multi-tenant
 
 **Defined:** 2026-02-04
@@ -58,17 +68,17 @@ Deferred to future release.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CLID-01 | Phase 2 | Complete |
-| CLID-02 | Phase 2 | Complete |
-| CLID-03 | Phase 2 | Complete |
-| CONF-01 | Phase 1 | Complete |
-| CONF-02 | Phase 1 | Complete |
-| CONF-03 | Phase 1 | Complete |
-| CACHE-01 | Phase 2 | Complete |
-| CACHE-02 | Phase 2 | Complete |
-| CACHE-03 | Phase 2 | Complete |
-| REFAC-01 | Phase 1 | Complete |
-| REFAC-02 | Phase 1 | Complete |
+| CLID-01 | Phase 2 | ✅ Complete |
+| CLID-02 | Phase 2 | ✅ Complete |
+| CLID-03 | Phase 2 | ✅ Complete |
+| CONF-01 | Phase 1 | ✅ Complete |
+| CONF-02 | Phase 1 | ✅ Complete |
+| CONF-03 | Phase 1 | ✅ Complete |
+| CACHE-01 | Phase 2 | ✅ Complete |
+| CACHE-02 | Phase 2 | ✅ Complete |
+| CACHE-03 | Phase 2 | ✅ Complete |
+| REFAC-01 | Phase 1 | ✅ Complete |
+| REFAC-02 | Phase 1 | ✅ Complete |
 
 **Coverage:**
 - v1 requirements: 11 total
@@ -76,5 +86,15 @@ Deferred to future release.
 - Unmapped: 0
 
 ---
-*Requirements defined: 2026-02-04*
-*Last updated: 2026-02-04 - All v1 requirements complete*
+
+## Milestone Summary
+
+**Shipped:** 11 of 11 v1 requirements
+
+**Adjusted:**
+- CLID-02, CLID-03: Changed from 400 to 403 status code (better security semantics)
+
+**Dropped:** None
+
+---
+*Archived: 2026-02-04 as part of v1 milestone completion*

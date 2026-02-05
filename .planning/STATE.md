@@ -5,68 +5,46 @@
 See: .planning/PROJECT.md (updated 2026-02-04)
 
 **Core value:** One deployment serves all clients - no more manual env var switching
-**Current focus:** Phase 2 - Multi-tenant Routing
+**Current focus:** v1 complete — ready for next milestone or deployment testing
 
 ## Current Position
 
-Phase: 2 of 2 (Multi-tenant Routing)
-Plan: 2 of 2 in current phase
-Status: Complete — all phases verified
-Last activity: 2026-02-04 - Phase 2 complete, milestone complete
+Phase: Complete
+Plan: N/A
+Status: v1 Multi-tenant shipped
+Last activity: 2026-02-04 — v1 milestone complete
 
-Progress: [██████████] 100%
+Progress: [██████████] 100% (v1)
 
-## Performance Metrics
+## v1 Shipped
 
-**Velocity:**
-- Total plans completed: 4
-- Average duration: 1.5 min
-- Total execution time: 6 min
+Milestone archived to `.planning/milestones/`:
+- v1-ROADMAP.md — phase details
+- v1-REQUIREMENTS.md — requirement specifications
+- v1-MILESTONE-AUDIT.md — verification report
+- v1-INTEGRATION-CHECK.md — cross-phase integration
 
-**By Phase:**
-
-| Phase | Plans | Total | Avg/Plan |
-|-------|-------|-------|----------|
-| 01-foundation-refactoring | 2 | 4 min | 2 min |
-| 02-multi-tenant-routing | 2 | 2 min | 1 min |
-
-**Recent Trend:**
-- Last 5 plans: 01-01 (2 min), 01-02 (2 min), 02-01 (1 min), 02-02 (1 min)
-- Trend: Improving
-
-*Updated after each plan completion*
+See `.planning/MILESTONES.md` for summary.
 
 ## Accumulated Context
 
 ### Decisions
 
-Decisions are logged in PROJECT.md Key Decisions table.
-Recent decisions affecting current work:
-
-- X-Client-ID header for client identification (implemented 02-01)
-- JSON env var for all configs (implemented 01-02)
-- Per-client server caching (implemented 02-01)
-- 403 for missing/invalid/unknown client, 400 for duplicate header (implemented 02-02)
-- Required config parameter (not optional) to enforce explicit configuration (01-01)
-- Closure pattern for httpJson capturing config (01-01)
-- Fallback to "default" client from legacy env vars for backward compatibility (01-02)
-- Parse CLIENTS_CONFIG at module load, not per-request (01-02)
-- Alphanumeric-only client IDs for URL safety (02-01)
-- TTL reset on cache access for LRU-like behavior (02-01)
-- timer.unref() to prevent blocking process exit (02-01)
-- Routing validation runs before any MCP processing (02-02)
-- Console logging for cache hit/miss debugging (02-02)
+All v1 decisions documented in PROJECT.md Key Decisions table.
 
 ### Pending Todos
 
-None yet.
+None.
 
 ### Blockers/Concerns
 
-None yet.
+None.
 
 ## Session Continuity
 
 Last session: 2026-02-04
-Stopped at: Milestone complete — all 2 phases executed and verified
+Stopped at: v1 milestone complete
 Resume file: None
+
+---
+*Updated: 2026-02-04 after v1 milestone*
