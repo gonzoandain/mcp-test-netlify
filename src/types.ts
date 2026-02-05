@@ -32,6 +32,10 @@ export interface ClientConfig {
   clientHeader: string;
   /** Optional timeout override in milliseconds (default 30000) */
   httpTimeoutMs?: number;
+  /** Human-readable name for this client (optional, for LLM discovery) */
+  name?: string;
+  /** Description of this client (optional, for LLM discovery) */
+  description?: string;
 }
 
 /**
