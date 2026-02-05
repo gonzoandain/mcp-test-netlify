@@ -41,7 +41,11 @@ Plans:
 3. routing.ts file deleted from src/
 4. cache.ts file deleted from src/
 
-**Plans:** TBD
+**Plans:** 2 plans
+
+Plans:
+- [ ] 04-01-PLAN.md — Delete legacy files: routing.ts, cache.ts
+- [ ] 04-02-PLAN.md — Add deprecation warning, update README
 
 ---
 
@@ -50,7 +54,7 @@ Plans:
 | Phase | Status | Plans |
 |-------|--------|-------|
 | 3 - Tool Parameters | Complete | 3/3 |
-| 4 - Header Cleanup | Pending | 0/? |
+| 4 - Header Cleanup | Planned | 0/2 |
 
 ## Coverage
 
@@ -72,3 +76,4 @@ Plans:
 *Created: 2026-02-05*
 *Phase 3 planned: 2026-02-05*
 *Phase 3 complete: 2026-02-05*
+*Phase 4 planned: 2026-02-05*
