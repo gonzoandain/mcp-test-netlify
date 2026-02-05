@@ -44,8 +44,8 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
-- [ ] 04-01-PLAN.md — Delete legacy files: routing.ts, cache.ts
-- [ ] 04-02-PLAN.md — Add deprecation warning, update README
+- [x] 04-01-PLAN.md — Delete legacy files: routing.ts, cache.ts
+- [x] 04-02-PLAN.md — Add deprecation warning, update README
 
 ---
 
@@ -54,7 +54,7 @@ Plans:
 | Phase | Status | Plans |
 |-------|--------|-------|
 | 3 - Tool Parameters | Complete | 3/3 |
-| 4 - Header Cleanup | Planned | 0/2 |
+| 4 - Header Cleanup | Complete | 2/2 |
 
 ## Coverage
 
@@ -65,10 +65,10 @@ Plans:
 | TOOL-03 | 3 | Complete |
 | DISC-01 | 3 | Complete |
 | DISC-02 | 3 | Complete |
-| CLEN-01 | 4 | Pending |
-| CLEN-02 | 4 | Pending |
-| CLEN-03 | 4 | Pending |
-| CLEN-04 | 4 | Pending |
+| CLEN-01 | 4 | Complete |
+| CLEN-02 | 4 | Complete |
+| CLEN-03 | 4 | Complete |
+| CLEN-04 | 4 | Complete |
 
 **Coverage:** 9/9 requirements mapped
 
@@ -77,3 +77,4 @@ Plans:
 *Phase 3 planned: 2026-02-05*
 *Phase 3 complete: 2026-02-05*
 *Phase 4 planned: 2026-02-05*
+*Phase 4 complete: 2026-02-05*

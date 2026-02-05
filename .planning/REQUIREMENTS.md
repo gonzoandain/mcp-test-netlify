@@ -20,10 +20,10 @@ Requirements for LLM-friendly tool interface.
 
 ### Cleanup
 
-- [ ] **CLEN-01**: Remove X-Client-ID header validation from request handler
-- [ ] **CLEN-02**: Remove per-client server caching (single server handles all clients)
-- [ ] **CLEN-03**: Remove routing.ts module (no longer needed)
-- [ ] **CLEN-04**: Remove cache.ts module (no longer needed)
+- [x] **CLEN-01**: Remove X-Client-ID header validation from request handler
+- [x] **CLEN-02**: Remove per-client server caching (single server handles all clients)
+- [x] **CLEN-03**: Remove routing.ts module (no longer needed)
+- [x] **CLEN-04**: Remove cache.ts module (no longer needed)
 
 ## v2 Requirements
 
@@ -48,10 +48,10 @@ Deferred to future release.
 | TOOL-03 | Phase 3 | Complete |
 | DISC-01 | Phase 3 | Complete |
 | DISC-02 | Phase 3 | Complete |
-| CLEN-01 | Phase 4 | Pending |
-| CLEN-02 | Phase 4 | Pending |
-| CLEN-03 | Phase 4 | Pending |
-| CLEN-04 | Phase 4 | Pending |
+| CLEN-01 | Phase 4 | Complete |
+| CLEN-02 | Phase 4 | Complete |
+| CLEN-03 | Phase 4 | Complete |
+| CLEN-04 | Phase 4 | Complete |
 
 **Coverage:**
 - v1.1 requirements: 9 total
