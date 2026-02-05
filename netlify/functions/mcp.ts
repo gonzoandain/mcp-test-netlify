@@ -6,15 +6,27 @@ import { randomUUID } from 'node:crypto';
 import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
 
 import { buildOneAppServer } from '../../src/oneappServer.js';
-import { validateClientHeader, createErrorResponse, ERROR_CODES, createUnknownClientError } from '../../src/routing.js';
-import { serverCache } from '../../src/cache.js';
-import { getClientConfig } from '../../src/config.js';
 
 // Store transports by session ID for proper session management
 const transports: { [sessionId: string]: StreamableHTTPServerTransport } = {};
 
+// Single MCP server instance - tools handle clientId parameter internally
+let mcpServer: ReturnType<typeof buildOneAppServer> | null = null;
+
+function getOrCreateServer() {
+  if (!mcpServer) {
+    mcpServer = buildOneAppServer();
+    console.log('Created MCP server instance');
+  }
+  return mcpServer;
+}
+
 /**
  * Netlify function handler — all MCP traffic is POSTed here
+ *
+ * Note: Header-based routing removed in v1.1. Tools now accept clientId as
+ * first parameter and validate it internally. This allows LLMs to switch
+ * between clients without connection changes.
  */
 export default async function handler(req: Request): Promise<Response> {
   try {
@@ -22,31 +34,8 @@ export default async function handler(req: Request): Promise<Response> {
       return new Response('Method not allowed', { status: 405 });
     }
 
-    // === Multi-tenant routing ===
-    const headerValidation = validateClientHeader(req.headers);
-    if (!headerValidation.success) {
-      // Per CONTEXT.md: 403 for missing/invalid, 400 for duplicate
-      const status = headerValidation.error.code === ERROR_CODES.DUPLICATE_CLIENT_ID ? 400 : 403;
-      return createErrorResponse(headerValidation.error, status);
-    }
-
-    const clientId = headerValidation.clientId;
-
-    // Check if client exists in config
-    const clientConfig = getClientConfig(clientId);
-    if (!clientConfig) {
-      return createErrorResponse(createUnknownClientError(clientId), 403);
-    }
-
-    // Get or create server for this client (lazy init with TTL cache)
-    let mcpServer = serverCache.get(clientId);
-    if (!mcpServer) {
-      mcpServer = buildOneAppServer(clientConfig);
-      serverCache.set(clientId, mcpServer);
-      console.log(`Created new MCP server for client: ${clientId}`);
-    } else {
-      console.log(`Reusing cached MCP server for client: ${clientId}`);
-    }
+    // Get the single server instance (tools validate clientId internally)
+    const server = getOrCreateServer();
 
     // Netlify gives us Web-standard Request/Response objects; MCP wants Node req/res
     const { req: nodeReq, res: nodeRes } = toReqRes(req);
@@ -86,7 +75,7 @@ export default async function handler(req: Request): Promise<Response> {
       };
 
       // Connect the transport to the MCP server
-      await mcpServer.connect(transport);
+      await server.connect(transport);
 
       // Store immediately by request session ID if present
       if (sessionId) {
@@ -121,7 +110,7 @@ export default async function handler(req: Request): Promise<Response> {
       };
 
       // Connect the transport to the MCP server
-      await mcpServer.connect(transport);
+      await server.connect(transport);
 
       // Store the transport
       transports[finalSessionId] = transport;
