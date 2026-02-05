@@ -9,26 +9,26 @@ See: .planning/PROJECT.md (updated 2026-02-05)
 
 ## Current Position
 
-Phase: 3 of 4 (Tool Parameters and Discovery) - COMPLETE
-Plan: 3 of 3 complete
-Status: Phase verified, ready for Phase 4
-Last activity: 2026-02-05 - Phase 3 verified
+Phase: 4 of 4 (Header Routing Cleanup)
+Plan: 2 of 3 complete
+Status: In progress
+Last activity: 2026-02-05 - Completed 04-02-PLAN.md
 
-Progress: [#####.....] 50% (3/6 plans)
+Progress: [########..] 83% (5/6 plans)
 
 ## Milestone Overview
 
 | Phase | Goal | Status |
 |-------|------|--------|
-| 3 | Tools accept clientId, list_clients discovery | ✓ Complete |
-| 4 | Remove header routing infrastructure | Pending |
+| 3 | Tools accept clientId, list_clients discovery | Complete |
+| 4 | Remove header routing infrastructure | In Progress |
 
 ## Performance Metrics
 
 | Metric | Current | Last Updated |
 |--------|---------|--------------|
-| Plans completed | 3 | 2026-02-05 |
-| Requirements done | 5/9 | 2026-02-05 |
+| Plans completed | 5 | 2026-02-05 |
+| Requirements done | 7/9 | 2026-02-05 |
 
 ## Accumulated Context
 
@@ -43,6 +43,8 @@ Progress: [#####.....] 50% (3/6 plans)
 | httpJson as standalone module | Explicit config parameter vs closure capture for flexibility | 03-02 |
 | Header routing removed from mcp.ts early | Safe to remove now since tools require clientId anyway | 03-02 |
 | Null for missing metadata in list_clients | Consistent structure vs omitting fields, easier for LLM parsing | 03-03 |
+| Deprecation warning in response content | Warning injected into MCP response.result.content array, visible to LLM | 04-02 |
+| CLIENTS_CONFIG format in README | Multi-client JSON format documented for environment setup | 04-02 |
 
 ### Pending Todos
 
@@ -55,8 +57,8 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-05
-Stopped at: Phase 3 complete and verified
-Resume with: `/gsd:plan-phase 4`
+Stopped at: Completed 04-02-PLAN.md (deprecation warning and docs)
+Resume with: Execute 04-03-PLAN.md
 
 ---
-*Updated: 2026-02-05 after Phase 3 verification*
+*Updated: 2026-02-05 after 04-02 completion*
