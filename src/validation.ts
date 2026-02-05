@@ -1,5 +1,5 @@
 import { ClientConfig } from './types.js';
-import { getClientConfig, getClientIds } from './config.js';
+import { getClientConfig } from './config.js';
 
 /**
  * Result type for clientId validation in tool handlers.
@@ -17,25 +17,23 @@ export type ClientValidationResult =
  * @returns Config on success, error message with valid IDs on failure
  */
 export function validateClientId(clientId: string): ClientValidationResult {
-  // Normalize: trim and lowercase (matching routing.ts pattern)
+  // Normalize: trim and lowercase for consistent lookup
   const normalized = clientId.trim().toLowerCase();
 
   // Validate format: alphanumeric and underscores only
   if (!/^[a-z0-9_]+$/.test(normalized)) {
-    const validIds = getClientIds();
     return {
       success: false,
-      error: `Invalid client ID format: "${clientId}". Must contain only lowercase alphanumeric characters and underscores. Valid clients: ${validIds.join(', ')}`,
+      error: `Invalid client ID format: "${clientId}". Must contain only lowercase alphanumeric characters and underscores. Use list_clients to see available clients.`,
     };
   }
 
   // Look up config
   const config = getClientConfig(normalized);
   if (!config) {
-    const validIds = getClientIds();
     return {
       success: false,
-      error: `Unknown client ID: "${clientId}". Valid clients: ${validIds.join(', ')}`,
+      error: `Unknown client ID: "${clientId}". Use list_clients to see available clients.`,
     };
   }
 
