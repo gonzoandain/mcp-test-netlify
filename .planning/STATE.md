@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-05)
 ## Current Position
 
 Phase: 3 of 4 (Tool Parameters and Discovery)
-Plan: 1 of 3 complete
+Plan: 2 of 3 complete
 Status: In progress
-Last activity: 2026-02-05 - Completed 03-01-PLAN.md
+Last activity: 2026-02-05 - Completed 03-02-PLAN.md
 
-Progress: [##........] 17% (1/6 plans)
+Progress: [###.......] 33% (2/6 plans)
 
 ## Milestone Overview
 
@@ -27,8 +27,8 @@ Progress: [##........] 17% (1/6 plans)
 
 | Metric | Current | Last Updated |
 |--------|---------|--------------|
-| Plans completed | 1 | 2026-02-05 |
-| Requirements done | 0/9 | 2026-02-05 |
+| Plans completed | 2 | 2026-02-05 |
+| Requirements done | 3/9 | 2026-02-05 |
 
 ## Accumulated Context
 
@@ -39,6 +39,9 @@ Progress: [##........] 17% (1/6 plans)
 | isError: true for business logic errors | MCP tools use isError flag for LLM-visible errors vs JSON-RPC protocol errors | 03-01 |
 | Error messages include valid IDs | Enables LLM self-correction without additional tool calls | 03-01 |
 | Client ID normalization: trim + lowercase | Consistent with existing routing.ts pattern | 03-01 |
+| Single server instance architecture | One MCP server for all clients, tools validate clientId internally | 03-02 |
+| httpJson as standalone module | Explicit config parameter vs closure capture for flexibility | 03-02 |
+| Header routing removed from mcp.ts early | Safe to remove now since tools require clientId anyway | 03-02 |
 
 ### Pending Todos
 
@@ -51,8 +54,8 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-05
-Stopped at: Completed 03-01-PLAN.md
+Stopped at: Completed 03-02-PLAN.md
 Resume file: None
 
 ---
-*Updated: 2026-02-05 after completing 03-01-PLAN.md*
+*Updated: 2026-02-05 after completing 03-02-PLAN.md*
