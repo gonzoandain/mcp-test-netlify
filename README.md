@@ -17,11 +17,12 @@ This project demonstrates how to deploy an MCP (Model Context Protocol) server u
    ```
 
 2. **Configure environment variables**:
-   Create a `.env` file with:
+   Create a `.env` file or set in Netlify dashboard:
    ```env
-   CORE_BASE=https://your-core-api.com
-   CLIENT_BASE=https://your-client-api.com
+   CLIENTS_CONFIG={"client1":{"name":"Client One","coreBase":"https://...","clientBase":"https://..."}}
    ```
+
+   Each client needs: `name`, `coreBase`, `clientBase` URLs.
 
 3. **Build the project**:
    ```bash
@@ -51,6 +52,39 @@ This project demonstrates how to deploy an MCP (Model Context Protocol) server u
 - `checklist_list_cuestionarios` - Get executed questionnaires  
 - `checklist_list_asignaciones` - Get questionnaire assignments
 - `checklist_list_respuestas` - Get assignment responses
+
+## Multi-Client Usage
+
+All tools accept a `clientId` parameter as the first argument to identify which client configuration to use.
+
+### Discovering Clients
+
+Use the `list_clients` tool to see all available clients:
+```json
+{
+  "method": "tools/call",
+  "params": {
+    "name": "list_clients",
+    "arguments": {}
+  }
+}
+```
+
+### Example Tool Call
+
+```json
+{
+  "method": "tools/call",
+  "params": {
+    "name": "core_list_sucursales",
+    "arguments": {
+      "clientId": "client1"
+    }
+  }
+}
+```
+
+**Note**: The `X-Client-ID` header is deprecated. Use the `clientId` parameter instead.
 
 ## Usage
 
