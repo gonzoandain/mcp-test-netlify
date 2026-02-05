@@ -9,26 +9,26 @@ See: .planning/PROJECT.md (updated 2026-02-05)
 
 ## Current Position
 
-Phase: 4 of 4 (Header Routing Cleanup)
-Plan: 2 of 3 complete
-Status: In progress
-Last activity: 2026-02-05 - Completed 04-02-PLAN.md
+Phase: 4 of 4 (Header Routing Cleanup) - COMPLETE
+Plan: 2 of 2 complete
+Status: Phase 4 complete
+Last activity: 2026-02-05 - Completed 04-01-PLAN.md
 
-Progress: [########..] 83% (5/6 plans)
+Progress: [##########] 100% (5/5 plans)
 
 ## Milestone Overview
 
 | Phase | Goal | Status |
 |-------|------|--------|
 | 3 | Tools accept clientId, list_clients discovery | Complete |
-| 4 | Remove header routing infrastructure | In Progress |
+| 4 | Remove header routing infrastructure | Complete |
 
 ## Performance Metrics
 
 | Metric | Current | Last Updated |
 |--------|---------|--------------|
 | Plans completed | 5 | 2026-02-05 |
-| Requirements done | 7/9 | 2026-02-05 |
+| Requirements done | 9/9 | 2026-02-05 |
 
 ## Accumulated Context
 
@@ -45,6 +45,7 @@ Progress: [########..] 83% (5/6 plans)
 | Null for missing metadata in list_clients | Consistent structure vs omitting fields, easier for LLM parsing | 03-03 |
 | Deprecation warning in response content | Warning injected into MCP response.result.content array, visible to LLM | 04-02 |
 | CLIENTS_CONFIG format in README | Multi-client JSON format documented for environment setup | 04-02 |
+| Error messages hint list_clients tool | Cleaner messages that teach discovery workflow | 04-01 |
 
 ### Pending Todos
 
@@ -57,8 +58,8 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-05
-Stopped at: Completed 04-02-PLAN.md (deprecation warning and docs)
-Resume with: Execute 04-03-PLAN.md
+Stopped at: Phase 4 complete - all cleanup done
+Resume with: Project milestone v1.1 complete
 
 ---
-*Updated: 2026-02-05 after 04-02 completion*
+*Updated: 2026-02-05 after 04-01 completion*
