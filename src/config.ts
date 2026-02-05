@@ -1,35 +1,39 @@
 import { ClientConfig, ClientsConfig } from './types.js';
+import { gunzipSync } from 'zlib';
 
 /**
- * Parse CLIENTS_CONFIG env vars at module load time.
+ * Decompress gzip+base64 encoded string.
+ */
+function decompressConfig(compressed: string): string {
+  const buffer = Buffer.from(compressed, 'base64');
+  const decompressed = gunzipSync(buffer);
+  return decompressed.toString('utf-8');
+}
+
+/**
+ * Parse CLIENTS_CONFIG env var at module load time.
  * This ensures config is parsed once, not per-request.
  *
  * Supports two formats:
- * 1. Split: CLIENTS_CONFIG_1 + CLIENTS_CONFIG_2 (for large configs over 5000 chars)
- * 2. Single: CLIENTS_CONFIG (for smaller configs)
+ * 1. Compressed: gzip + base64 encoded JSON (for AWS Lambda 4KB limit)
+ * 2. Plain JSON: uncompressed (for local dev or small configs)
  *
- * Falls back to legacy single-client env vars if neither is set,
+ * Falls back to legacy single-client env vars if not set,
  * creating a "default" client entry for backward compatibility.
  */
 function loadClientsConfig(): ClientsConfig {
-  // Try split config first (for large configs)
-  const config1 = process.env.CLIENTS_CONFIG_1;
-  const config2 = process.env.CLIENTS_CONFIG_2;
+  let configJson: string | undefined = process.env.CLIENTS_CONFIG;
 
-  let configJson: string | undefined;
-
-  if (config1 && config2) {
-    // Merge two JSON objects: parse both, spread into one, re-stringify
-    try {
-      const parsed1 = JSON.parse(config1);
-      const parsed2 = JSON.parse(config2);
-      configJson = JSON.stringify({ ...parsed1, ...parsed2 });
-      console.log('Using split CLIENTS_CONFIG_1 + CLIENTS_CONFIG_2');
-    } catch (error) {
-      throw new Error(`Failed to parse split config: ${error instanceof Error ? error.message : error}`);
+  if (configJson) {
+    // Detect if compressed (base64 gzip starts with H4sI)
+    if (configJson.startsWith('H4sI')) {
+      try {
+        configJson = decompressConfig(configJson);
+        console.log('Decompressed CLIENTS_CONFIG from gzip+base64');
+      } catch (error) {
+        throw new Error(`Failed to decompress CLIENTS_CONFIG: ${error instanceof Error ? error.message : error}`);
+      }
     }
-  } else {
-    configJson = process.env.CLIENTS_CONFIG;
   }
 
   if (configJson) {
