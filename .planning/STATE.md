@@ -2,29 +2,19 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-04)
+See: .planning/PROJECT.md (updated 2026-02-05)
 
 **Core value:** One deployment serves all clients - no more manual env var switching
-**Current focus:** v1 complete — ready for next milestone or deployment testing
+**Current focus:** v1.1 LLM-Friendly Tools
 
 ## Current Position
 
-Phase: Complete
-Plan: N/A
-Status: v1 Multi-tenant shipped
-Last activity: 2026-02-04 — v1 milestone complete
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-02-05 — Milestone v1.1 started
 
-Progress: [██████████] 100% (v1)
-
-## v1 Shipped
-
-Milestone archived to `.planning/milestones/`:
-- v1-ROADMAP.md — phase details
-- v1-REQUIREMENTS.md — requirement specifications
-- v1-MILESTONE-AUDIT.md — verification report
-- v1-INTEGRATION-CHECK.md — cross-phase integration
-
-See `.planning/MILESTONES.md` for summary.
+Progress: [░░░░░░░░░░] 0%
 
 ## Accumulated Context
 
@@ -42,9 +32,9 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-04
-Stopped at: v1 milestone complete
+Last session: 2026-02-05
+Stopped at: Starting v1.1 milestone
 Resume file: None
 
 ---
-*Updated: 2026-02-04 after v1 milestone*
+*Updated: 2026-02-05 after v1.1 milestone start*

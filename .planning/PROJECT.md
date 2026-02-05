@@ -28,7 +28,13 @@ One deployment serves all clients — no more manual env var switching to change
 
 ### Active
 
-(None — ready for next milestone)
+- [ ] Add clientId parameter to all tools for LLM-friendly client selection
+- [ ] Remove X-Client-ID header-based routing (tools handle client selection)
+- [ ] Add list_clients tool for LLM to discover available clients
+
+## Current Milestone: v1.1 LLM-Friendly Tools
+
+**Goal:** Make tools directly usable by LLMs without header configuration — clientId as tool parameter
 
 ### Out of Scope
 
@@ -64,4 +70,4 @@ Client configs stored in CLIENTS_CONFIG JSON env var. Each client gets isolated 
 | 5-min TTL with reset-on-access | Efficient caching without memory bloat | ✓ Good |
 
 ---
-*Last updated: 2026-02-04 after v1 milestone*
+*Last updated: 2026-02-05 after v1.1 milestone start*
