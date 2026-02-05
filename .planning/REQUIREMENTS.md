@@ -9,14 +9,14 @@ Requirements for LLM-friendly tool interface.
 
 ### Tool Parameters
 
-- [ ] **TOOL-01**: Every existing tool accepts `clientId` as first required parameter
-- [ ] **TOOL-02**: Tool validates clientId and returns error if unknown
-- [ ] **TOOL-03**: Tool uses clientId to look up config and make API calls
+- [x] **TOOL-01**: Every existing tool accepts `clientId` as first required parameter
+- [x] **TOOL-02**: Tool validates clientId and returns error if unknown
+- [x] **TOOL-03**: Tool uses clientId to look up config and make API calls
 
 ### Discovery
 
-- [ ] **DISC-01**: New `list_clients` tool returns available client IDs
-- [ ] **DISC-02**: `list_clients` includes client names/descriptions if available
+- [x] **DISC-01**: New `list_clients` tool returns available client IDs
+- [x] **DISC-02**: `list_clients` includes client names/descriptions if available
 
 ### Cleanup
 
@@ -43,11 +43,11 @@ Deferred to future release.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| TOOL-01 | Phase 3 | Pending |
-| TOOL-02 | Phase 3 | Pending |
-| TOOL-03 | Phase 3 | Pending |
-| DISC-01 | Phase 3 | Pending |
-| DISC-02 | Phase 3 | Pending |
+| TOOL-01 | Phase 3 | Complete |
+| TOOL-02 | Phase 3 | Complete |
+| TOOL-03 | Phase 3 | Complete |
+| DISC-01 | Phase 3 | Complete |
+| DISC-02 | Phase 3 | Complete |
 | CLEN-01 | Phase 4 | Pending |
 | CLEN-02 | Phase 4 | Pending |
 | CLEN-03 | Phase 4 | Pending |

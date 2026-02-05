@@ -25,9 +25,9 @@ Transform client selection from X-Client-ID header routing to clientId tool para
 **Plans:** 3 plans
 
 Plans:
-- [ ] 03-01-PLAN.md — Infrastructure: types, validation helper
-- [ ] 03-02-PLAN.md — Tool refactor: add clientId to all tools
-- [ ] 03-03-PLAN.md — Discovery: list_clients tool, single server
+- [x] 03-01-PLAN.md — Infrastructure: types, validation helper
+- [x] 03-02-PLAN.md — Tool refactor: add clientId to all tools
+- [x] 03-03-PLAN.md — Discovery: list_clients tool, single server
 
 ### Phase 4: Header Routing Cleanup
 
@@ -49,18 +49,18 @@ Plans:
 
 | Phase | Status | Plans |
 |-------|--------|-------|
-| 3 - Tool Parameters | Planned | 0/3 |
+| 3 - Tool Parameters | Complete | 3/3 |
 | 4 - Header Cleanup | Pending | 0/? |
 
 ## Coverage
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| TOOL-01 | 3 | Pending |
-| TOOL-02 | 3 | Pending |
-| TOOL-03 | 3 | Pending |
-| DISC-01 | 3 | Pending |
-| DISC-02 | 3 | Pending |
+| TOOL-01 | 3 | Complete |
+| TOOL-02 | 3 | Complete |
+| TOOL-03 | 3 | Complete |
+| DISC-01 | 3 | Complete |
+| DISC-02 | 3 | Complete |
 | CLEN-01 | 4 | Pending |
 | CLEN-02 | 4 | Pending |
 | CLEN-03 | 4 | Pending |
@@ -71,3 +71,4 @@ Plans:
 ---
 *Created: 2026-02-05*
 *Phase 3 planned: 2026-02-05*
+*Phase 3 complete: 2026-02-05*
