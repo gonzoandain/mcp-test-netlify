@@ -22,7 +22,12 @@ Transform client selection from X-Client-ID header routing to clientId tool para
 3. LLM can call list_clients to see all available client IDs
 4. list_clients response includes client names when configured
 
-**Plans:** TBD
+**Plans:** 3 plans
+
+Plans:
+- [ ] 03-01-PLAN.md — Infrastructure: types, validation helper
+- [ ] 03-02-PLAN.md — Tool refactor: add clientId to all tools
+- [ ] 03-03-PLAN.md — Discovery: list_clients tool, single server
 
 ### Phase 4: Header Routing Cleanup
 
@@ -44,7 +49,7 @@ Transform client selection from X-Client-ID header routing to clientId tool para
 
 | Phase | Status | Plans |
 |-------|--------|-------|
-| 3 - Tool Parameters | Pending | 0/? |
+| 3 - Tool Parameters | Planned | 0/3 |
 | 4 - Header Cleanup | Pending | 0/? |
 
 ## Coverage
@@ -65,3 +70,4 @@ Transform client selection from X-Client-ID header routing to clientId tool para
 
 ---
 *Created: 2026-02-05*
+*Phase 3 planned: 2026-02-05*
