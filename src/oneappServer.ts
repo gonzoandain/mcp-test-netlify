@@ -2,6 +2,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { validateClientId, createClientIdErrorResult } from './validation.js';
 import { httpJson } from './httpClient.js';
+import { getClientIds, clientsConfig } from './config.js';
 
 export function buildOneAppServer(): McpServer {
   const server = new McpServer({ name: 'oneapp-mcp', version: '0.1.0' });
@@ -414,6 +415,31 @@ export function buildOneAppServer(): McpServer {
         console.error('Request failed:', error);
         throw error;
       }
+    }
+  );
+
+  // Discovery tool - list available clients
+  server.tool(
+    'list_clients',
+    'Returns all available client IDs that can be used with other tools. Use this to discover which clients are configured before making API calls.',
+    async () => {
+      const clientIds = getClientIds();
+
+      const clients = clientIds.map(id => {
+        const config = clientsConfig[id];
+        return {
+          id,
+          name: config.name || null,
+          description: config.description || null,
+        };
+      });
+
+      return {
+        content: [{
+          type: 'text',
+          text: JSON.stringify({ clients }, null, 2)
+        }]
+      };
     }
   );
 
