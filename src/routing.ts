@@ -30,7 +30,7 @@ export interface RoutingError {
 const ERROR_MESSAGES: Record<typeof ERROR_CODES[keyof typeof ERROR_CODES], string> = {
   [ERROR_CODES.MISSING_CLIENT_ID]: 'Missing X-Client-ID header. Provide client identifier.',
   [ERROR_CODES.DUPLICATE_CLIENT_ID]: 'Multiple X-Client-ID headers detected. Provide exactly one.',
-  [ERROR_CODES.INVALID_CLIENT_ID]: 'Client ID must contain only alphanumeric characters (a-z, 0-9).',
+  [ERROR_CODES.INVALID_CLIENT_ID]: 'Client ID must contain only lowercase alphanumeric characters and underscores (a-z, 0-9, _).',
   [ERROR_CODES.UNKNOWN_CLIENT]: 'Unknown client ID: {id}. Check X-Client-ID header value.',
 };
 
@@ -80,7 +80,7 @@ export function createUnknownClientError(clientId: string): RoutingError {
  * - Header is required (returns MISSING_CLIENT_ID if absent)
  * - Only one header allowed (returns DUPLICATE_CLIENT_ID if comma-separated)
  * - Value is trimmed and lowercased for normalization
- * - Must be alphanumeric only (returns INVALID_CLIENT_ID otherwise)
+ * - Must be alphanumeric with underscores only (returns INVALID_CLIENT_ID otherwise)
  *
  * @param headers - Web API Headers object from request
  * @returns ValidationResult with clientId on success, error on failure
@@ -125,8 +125,8 @@ export function validateClientHeader(headers: Headers): ValidationResult {
     };
   }
 
-  // Validate format: alphanumeric only
-  if (!/^[a-z0-9]+$/.test(normalized)) {
+  // Validate format: alphanumeric and underscores only
+  if (!/^[a-z0-9_]+$/.test(normalized)) {
     return {
       success: false,
       error: {
