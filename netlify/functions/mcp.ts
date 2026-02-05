@@ -34,6 +34,9 @@ export default async function handler(req: Request): Promise<Response> {
       return new Response('Method not allowed', { status: 405 });
     }
 
+    // Check for deprecated X-Client-ID header
+    const clientIdHeader = req.headers.get('x-client-id');
+
     // Get the single server instance (tools validate clientId internally)
     const server = getOrCreateServer();
 
@@ -142,7 +145,32 @@ export default async function handler(req: Request): Promise<Response> {
     // Handle the request with the appropriate transport
     await transport.handleRequest(nodeReq, nodeRes, body);
 
-    return toFetchResponse(nodeRes);
+    // Get the response that was written to nodeRes
+    let response = await toFetchResponse(nodeRes);
+
+    // If deprecated header was used, inject warning into response
+    if (clientIdHeader) {
+      console.warn('X-Client-ID header is deprecated. Use clientId parameter in tool calls instead.');
+
+      try {
+        const responseBody = await response.clone().json();
+        // For MCP responses with result.content array, prepend warning
+        if (responseBody.result?.content && Array.isArray(responseBody.result.content)) {
+          responseBody.result.content.unshift({
+            type: 'text',
+            text: '[DEPRECATION WARNING] X-Client-ID header is deprecated. Use clientId parameter in tool calls instead.'
+          });
+          response = new Response(JSON.stringify(responseBody), {
+            status: response.status,
+            headers: response.headers
+          });
+        }
+      } catch {
+        // If response isn't JSON or doesn't have expected structure, just return original
+      }
+    }
+
+    return response;
   } catch (err) {    
     // Try to get the request ID from the original body
     let requestId = '';
