@@ -1,14 +1,36 @@
 import { ClientConfig, ClientsConfig } from './types.js';
 
 /**
- * Parse CLIENTS_CONFIG env var at module load time.
+ * Parse CLIENTS_CONFIG env vars at module load time.
  * This ensures config is parsed once, not per-request.
  *
- * Falls back to legacy single-client env vars if CLIENTS_CONFIG is not set,
+ * Supports two formats:
+ * 1. Split: CLIENTS_CONFIG_1 + CLIENTS_CONFIG_2 (for large configs over 5000 chars)
+ * 2. Single: CLIENTS_CONFIG (for smaller configs)
+ *
+ * Falls back to legacy single-client env vars if neither is set,
  * creating a "default" client entry for backward compatibility.
  */
 function loadClientsConfig(): ClientsConfig {
-  const configJson = process.env.CLIENTS_CONFIG;
+  // Try split config first (for large configs)
+  const config1 = process.env.CLIENTS_CONFIG_1;
+  const config2 = process.env.CLIENTS_CONFIG_2;
+
+  let configJson: string | undefined;
+
+  if (config1 && config2) {
+    // Merge two JSON objects: parse both, spread into one, re-stringify
+    try {
+      const parsed1 = JSON.parse(config1);
+      const parsed2 = JSON.parse(config2);
+      configJson = JSON.stringify({ ...parsed1, ...parsed2 });
+      console.log('Using split CLIENTS_CONFIG_1 + CLIENTS_CONFIG_2');
+    } catch (error) {
+      throw new Error(`Failed to parse split config: ${error instanceof Error ? error.message : error}`);
+    }
+  } else {
+    configJson = process.env.CLIENTS_CONFIG;
+  }
 
   if (configJson) {
     try {

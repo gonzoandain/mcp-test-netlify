@@ -10,8 +10,3 @@
 [functions]
   included_files = ["**/*.js", "**/*.mjs"]
 
-[[plugins]]
-  package = "netlify-plugin-inline-functions-env"
-
-  [plugins.inputs]
-    include = ["CLIENTS_CONFIG"]
