@@ -1,0 +1,67 @@
+# Milestone v1.1: LLM-Friendly Tools
+
+**Status:** Active
+**Phases:** 3-4 (continues from v1's phase 2)
+**Total Requirements:** 9
+
+## Overview
+
+Transform client selection from X-Client-ID header routing to clientId tool parameters. Phase 3 adds clientId as first parameter to all tools plus a list_clients discovery tool. Phase 4 removes the now-redundant header routing infrastructure. Result: tools directly usable by LLMs without header configuration.
+
+## Phases
+
+### Phase 3: Tool Parameters and Discovery
+
+**Goal:** Tools accept clientId as parameter, LLMs can discover available clients
+**Depends on:** Phase 2 (multi-tenant routing - provides config infrastructure)
+**Requirements:** TOOL-01, TOOL-02, TOOL-03, DISC-01, DISC-02
+
+**Success Criteria:**
+1. Every tool call with valid clientId executes against that client's API
+2. Tool call with unknown clientId returns clear error naming the invalid ID
+3. LLM can call list_clients to see all available client IDs
+4. list_clients response includes client names when configured
+
+**Plans:** TBD
+
+### Phase 4: Header Routing Cleanup
+
+**Goal:** Remove legacy header-based routing, single server handles all clients
+**Depends on:** Phase 3 (tools must work without headers first)
+**Requirements:** CLEN-01, CLEN-02, CLEN-03, CLEN-04
+
+**Success Criteria:**
+1. Request without X-Client-ID header no longer returns 403
+2. Server instance shared across all clients (no per-client caching)
+3. routing.ts file deleted from src/
+4. cache.ts file deleted from src/
+
+**Plans:** TBD
+
+---
+
+## Progress
+
+| Phase | Status | Plans |
+|-------|--------|-------|
+| 3 - Tool Parameters | Pending | 0/? |
+| 4 - Header Cleanup | Pending | 0/? |
+
+## Coverage
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| TOOL-01 | 3 | Pending |
+| TOOL-02 | 3 | Pending |
+| TOOL-03 | 3 | Pending |
+| DISC-01 | 3 | Pending |
+| DISC-02 | 3 | Pending |
+| CLEN-01 | 4 | Pending |
+| CLEN-02 | 4 | Pending |
+| CLEN-03 | 4 | Pending |
+| CLEN-04 | 4 | Pending |
+
+**Coverage:** 9/9 requirements mapped
+
+---
+*Created: 2026-02-05*

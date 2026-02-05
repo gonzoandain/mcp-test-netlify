@@ -43,20 +43,21 @@ Deferred to future release.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| TOOL-01 | TBD | Pending |
-| TOOL-02 | TBD | Pending |
-| TOOL-03 | TBD | Pending |
-| DISC-01 | TBD | Pending |
-| DISC-02 | TBD | Pending |
-| CLEN-01 | TBD | Pending |
-| CLEN-02 | TBD | Pending |
-| CLEN-03 | TBD | Pending |
-| CLEN-04 | TBD | Pending |
+| TOOL-01 | Phase 3 | Pending |
+| TOOL-02 | Phase 3 | Pending |
+| TOOL-03 | Phase 3 | Pending |
+| DISC-01 | Phase 3 | Pending |
+| DISC-02 | Phase 3 | Pending |
+| CLEN-01 | Phase 4 | Pending |
+| CLEN-02 | Phase 4 | Pending |
+| CLEN-03 | Phase 4 | Pending |
+| CLEN-04 | Phase 4 | Pending |
 
 **Coverage:**
 - v1.1 requirements: 9 total
-- Mapped to phases: 0
-- Unmapped: 9 ⚠️
+- Mapped to phases: 9
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-05*
+*Traceability updated: 2026-02-05 (roadmap creation)*
