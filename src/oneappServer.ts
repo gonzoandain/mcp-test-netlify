@@ -418,6 +418,458 @@ export function buildOneAppServer(): McpServer {
     }
   );
 
+  // Checkstore API tools
+  server.tool(
+    'checkstore_cobertura_usuarios',
+    'Devuelve la cobertura de visitas por usuario dentro de un rango de fechas, mostrando cuántas visitas realizó cada usuario.',
+    {
+      clientId: z.string().describe('Client identifier (e.g., "sechpos", "acme")'),
+      desde: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).describe('Fecha inicio YYYY-MM-DD'),
+      hasta: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).describe('Fecha fin YYYY-MM-DD')
+    },
+    async ({ clientId, desde, hasta }) => {
+      const validation = validateClientId(clientId);
+      if (!validation.success) {
+        return createClientIdErrorResult(validation.error);
+      }
+      const { config } = validation;
+
+      const data = await httpJson<any>(config, config.clientBaseUrl, '/front/api/visitas/cobertura_usuarios', {
+        method: 'POST',
+        body: JSON.stringify({ desde, hasta })
+      });
+      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    'checkstore_sucursales_reportadas',
+    'Lista las sucursales que fueron reportadas o visitadas dentro de un rango de fechas determinado.',
+    {
+      clientId: z.string().describe('Client identifier (e.g., "sechpos", "acme")'),
+      desde: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).describe('Fecha inicio YYYY-MM-DD'),
+      hasta: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).describe('Fecha fin YYYY-MM-DD')
+    },
+    async ({ clientId, desde, hasta }) => {
+      const validation = validateClientId(clientId);
+      if (!validation.success) {
+        return createClientIdErrorResult(validation.error);
+      }
+      const { config } = validation;
+
+      const data = await httpJson<any>(config, config.clientBaseUrl, '/front/api/visitas/sucursales_reportadas', {
+        method: 'POST',
+        body: JSON.stringify({ desde, hasta })
+      });
+      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    'checkstore_visita_sucursales',
+    'Obtiene el detalle de las visitas realizadas a sucursales dentro de un rango de fechas.',
+    {
+      clientId: z.string().describe('Client identifier (e.g., "sechpos", "acme")'),
+      desde: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).describe('Fecha inicio YYYY-MM-DD'),
+      hasta: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).describe('Fecha fin YYYY-MM-DD')
+    },
+    async ({ clientId, desde, hasta }) => {
+      const validation = validateClientId(clientId);
+      if (!validation.success) {
+        return createClientIdErrorResult(validation.error);
+      }
+      const { config } = validation;
+
+      const data = await httpJson<any>(config, config.clientBaseUrl, '/front/api/visitas/visita_sucursales', {
+        method: 'POST',
+        body: JSON.stringify({ desde, hasta })
+      });
+      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    'checkstore_reporte_visitas',
+    'Genera un reporte consolidado de visitas realizadas, permitiendo filtrar por rango de fechas.',
+    {
+      clientId: z.string().describe('Client identifier (e.g., "sechpos", "acme")'),
+      desde: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).describe('Fecha inicio YYYY-MM-DD'),
+      hasta: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).describe('Fecha fin YYYY-MM-DD')
+    },
+    async ({ clientId, desde, hasta }) => {
+      const validation = validateClientId(clientId);
+      if (!validation.success) {
+        return createClientIdErrorResult(validation.error);
+      }
+      const { config } = validation;
+
+      const data = await httpJson<any>(config, config.clientBaseUrl, '/front/api/visitas/reporte_visitas', {
+        method: 'POST',
+        body: JSON.stringify({ desde, hasta })
+      });
+      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+    }
+  );
+
+  // TaskManager API tools
+  server.tool(
+    'taskmanager_list_tareas',
+    'Retorna las tareas configuradas en el módulo de TaskManager del cliente, con paginación y búsqueda opcional.',
+    {
+      clientId: z.string().describe('Client identifier (e.g., "sechpos", "acme")'),
+      tarea_id: z.number().int().optional().describe('ID de la tarea (opcional, para filtrar una tarea específica)'),
+      search: z.string().optional().describe('Término de búsqueda por nombre de tarea'),
+      page: z.number().int().min(1).optional().describe('Page number (starts at 1)'),
+      limit: z.number().int().min(1).max(100).optional().describe('Number of items per page (max 100)')
+    },
+    async ({ clientId, tarea_id, search, page, limit }) => {
+      const validation = validateClientId(clientId);
+      if (!validation.success) {
+        return createClientIdErrorResult(validation.error);
+      }
+      const { config } = validation;
+
+      const qs = new URLSearchParams();
+      if (typeof tarea_id === 'number') qs.set('tarea_id', String(tarea_id));
+      if (search) qs.set('search', search);
+      if (page) qs.set('page', String(page));
+      if (limit) qs.set('limit', String(limit));
+      const path = `/front/api/taskmanager/data/tareas${qs.size ? `?${qs.toString()}` : ''}`;
+      const data = await httpJson<any>(config, config.clientBaseUrl, path, { method: 'GET' });
+      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    'taskmanager_list_asignaciones',
+    'Devuelve las asignaciones de tareas del TaskManager para un usuario específico, con filtros opcionales por estado y rango de fechas.',
+    {
+      clientId: z.string().describe('Client identifier (e.g., "sechpos", "acme")'),
+      usuario_id: z.number().int().describe('ID del usuario (obligatorio)'),
+      estado: z.string().optional().describe('Filtrar por estado de la asignación (opcional)'),
+      desde: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().describe('Fecha inicio YYYY-MM-DD (opcional)'),
+      hasta: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().describe('Fecha fin YYYY-MM-DD (opcional)'),
+      page: z.number().int().min(1).optional().describe('Page number (starts at 1)'),
+      limit: z.number().int().min(1).max(100).optional().describe('Number of items per page (max 100)')
+    },
+    async ({ clientId, usuario_id, estado, desde, hasta, page, limit }) => {
+      const validation = validateClientId(clientId);
+      if (!validation.success) {
+        return createClientIdErrorResult(validation.error);
+      }
+      const { config } = validation;
+
+      const qs = new URLSearchParams({ usuario_id: String(usuario_id) });
+      if (estado) qs.set('estado', estado);
+      if (desde) qs.set('desde', desde);
+      if (hasta) qs.set('hasta', hasta);
+      if (page) qs.set('page', String(page));
+      if (limit) qs.set('limit', String(limit));
+      const data = await httpJson<any>(config, config.clientBaseUrl, `/front/api/taskmanager/data/asignaciones?${qs.toString()}`, { method: 'GET' });
+      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    'taskmanager_detalle_asignacion',
+    'Obtiene el detalle completo de una asignación específica del TaskManager, identificada por su ID.',
+    {
+      clientId: z.string().describe('Client identifier (e.g., "sechpos", "acme")'),
+      asignacion_id: z.number().int().describe('ID de la asignación')
+    },
+    async ({ clientId, asignacion_id }) => {
+      const validation = validateClientId(clientId);
+      if (!validation.success) {
+        return createClientIdErrorResult(validation.error);
+      }
+      const { config } = validation;
+
+      const data = await httpJson<any>(config, config.clientBaseUrl, `/front/api/taskmanager/data/asignacion/${asignacion_id}`, { method: 'GET' });
+      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    'taskmanager_list_preguntas',
+    'Devuelve todas las preguntas que componen una tarea del TaskManager identificada por tarea_id.',
+    {
+      clientId: z.string().describe('Client identifier (e.g., "sechpos", "acme")'),
+      tarea_id: z.number().int().describe('ID de la tarea (obligatorio)')
+    },
+    async ({ clientId, tarea_id }) => {
+      const validation = validateClientId(clientId);
+      if (!validation.success) {
+        return createClientIdErrorResult(validation.error);
+      }
+      const { config } = validation;
+
+      const qs = new URLSearchParams({ tarea_id: String(tarea_id) });
+      const data = await httpJson<any>(config, config.clientBaseUrl, `/front/api/taskmanager/data/preguntas?${qs.toString()}`, { method: 'GET' });
+      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    'taskmanager_list_respuestas',
+    'Entrega las respuestas registradas para una tarea del TaskManager, con filtro opcional por asignación y paginación.',
+    {
+      clientId: z.string().describe('Client identifier (e.g., "sechpos", "acme")'),
+      tarea_id: z.number().int().describe('ID de la tarea (obligatorio)'),
+      asignacion_id: z.number().int().optional().describe('ID de la asignación para filtrar resultados (opcional)'),
+      page: z.number().int().min(1).optional().describe('Page number (starts at 1)'),
+      limit: z.number().int().min(1).max(100).optional().describe('Number of items per page (max 100)')
+    },
+    async ({ clientId, tarea_id, asignacion_id, page, limit }) => {
+      const validation = validateClientId(clientId);
+      if (!validation.success) {
+        return createClientIdErrorResult(validation.error);
+      }
+      const { config } = validation;
+
+      const qs = new URLSearchParams({ tarea_id: String(tarea_id) });
+      if (typeof asignacion_id === 'number') qs.set('asignacion_id', String(asignacion_id));
+      if (page) qs.set('page', String(page));
+      if (limit) qs.set('limit', String(limit));
+      const data = await httpJson<any>(config, config.clientBaseUrl, `/front/api/taskmanager/data/respuestas?${qs.toString()}`, { method: 'GET' });
+      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    'taskmanager_list_reportes',
+    'Genera reportes del módulo TaskManager desde una fecha obligatoria, con filtros opcionales por fecha fin, tarea, tipo de tarea y estado.',
+    {
+      clientId: z.string().describe('Client identifier (e.g., "sechpos", "acme")'),
+      desde: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).describe('Fecha inicio YYYY-MM-DD (obligatorio)'),
+      hasta: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().describe('Fecha fin YYYY-MM-DD (opcional)'),
+      tarea_id: z.number().int().optional().describe('ID de tarea para filtrar (opcional)'),
+      tipo_tarea: z.string().optional().describe('Tipo de tarea para filtrar, ej: "Simple" (opcional)'),
+      estado: z.string().optional().describe('Estado para filtrar: Pendiente, En proceso, Caducado, Finalizada (opcional)')
+    },
+    async ({ clientId, desde, hasta, tarea_id, tipo_tarea, estado }) => {
+      const validation = validateClientId(clientId);
+      if (!validation.success) {
+        return createClientIdErrorResult(validation.error);
+      }
+      const { config } = validation;
+
+      const qs = new URLSearchParams({ desde });
+      if (hasta) qs.set('hasta', hasta);
+      if (typeof tarea_id === 'number') qs.set('tarea_id', String(tarea_id));
+      if (tipo_tarea) qs.set('tipo_tarea', tipo_tarea);
+      if (estado) qs.set('estado', estado);
+      const data = await httpJson<any>(config, config.clientBaseUrl, `/front/api/taskmanager/data/reportes?${qs.toString()}`, { method: 'GET' });
+      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    'taskmanager_list_estados',
+    'Devuelve los estados disponibles para las tareas del módulo TaskManager (ej: Pendiente, En proceso, Caducado, Finalizada).',
+    {
+      clientId: z.string().describe('Client identifier (e.g., "sechpos", "acme")')
+    },
+    async ({ clientId }) => {
+      const validation = validateClientId(clientId);
+      if (!validation.success) {
+        return createClientIdErrorResult(validation.error);
+      }
+      const { config } = validation;
+
+      const data = await httpJson<any>(config, config.clientBaseUrl, '/front/api/taskmanager/data/estados', { method: 'GET' });
+      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    'taskmanager_list_tipos_tareas',
+    'Lista los tipos de tareas disponibles en el módulo de TaskManager del cliente.',
+    {
+      clientId: z.string().describe('Client identifier (e.g., "sechpos", "acme")')
+    },
+    async ({ clientId }) => {
+      const validation = validateClientId(clientId);
+      if (!validation.success) {
+        return createClientIdErrorResult(validation.error);
+      }
+      const { config } = validation;
+
+      const data = await httpJson<any>(config, config.clientBaseUrl, '/front/api/taskmanager/data/tipos-tareas', { method: 'GET' });
+      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+    }
+  );
+
+  // Comunicados API tools
+  server.tool(
+    'comunicados_estadisticas',
+    'Obtiene estadísticas de lectura y comprensión de comunicados, agrupadas por país, zona o sucursal según la jerarquía del usuario. Permite controlar la profundidad con el parámetro nivel.',
+    {
+      clientId: z.string().describe('Client identifier (e.g., "sechpos", "acme")'),
+      nivel: z.enum(['bot', 'top', 'dual']).optional().describe('Profundidad: top (solo resumen), bot (solo detalle), dual (ambos, por defecto)'),
+      desde: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().describe('Fecha inicio YYYY-MM-DD (opcional)'),
+      hasta: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().describe('Fecha fin YYYY-MM-DD (opcional)'),
+      zona_id: z.number().int().optional().describe('ID de la zona para filtrar (opcional)')
+    },
+    async ({ clientId, nivel, desde, hasta, zona_id }) => {
+      const validation = validateClientId(clientId);
+      if (!validation.success) {
+        return createClientIdErrorResult(validation.error);
+      }
+      const { config } = validation;
+
+      const qs = new URLSearchParams();
+      if (nivel) qs.set('nivel', nivel);
+      if (desde) qs.set('desde', desde);
+      if (hasta) qs.set('hasta', hasta);
+      if (typeof zona_id === 'number') qs.set('zona_id', String(zona_id));
+      const path = `/front/api/comunicados/estadisticas${qs.size ? `?${qs.toString()}` : ''}`;
+      const data = await httpJson<any>(config, config.clientBaseUrl, path, { method: 'GET' });
+      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    'comunicados_listar',
+    'Retorna la lista de todos los comunicados existentes en la plataforma para el cliente.',
+    {
+      clientId: z.string().describe('Client identifier (e.g., "sechpos", "acme")')
+    },
+    async ({ clientId }) => {
+      const validation = validateClientId(clientId);
+      if (!validation.success) {
+        return createClientIdErrorResult(validation.error);
+      }
+      const { config } = validation;
+
+      const data = await httpJson<any>(config, config.clientBaseUrl, '/front/api/comunicados/listar', {
+        method: 'POST',
+        body: JSON.stringify({})
+      });
+      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    'comunicados_comunicados',
+    'Retorna los comunicados activos del usuario autenticado con estado de lectura, comprensión y estadísticas semanales/mensuales. Permite filtrar por tipo y rango de fechas.',
+    {
+      clientId: z.string().describe('Client identifier (e.g., "sechpos", "acme")'),
+      tipo_id: z.number().int().optional().describe('ID del tipo de comunicado para filtrar (opcional)'),
+      fecha_inicio: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().describe('Fecha inicio YYYY-MM-DD (opcional)'),
+      fecha_fin: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().describe('Fecha fin YYYY-MM-DD (opcional)')
+    },
+    async ({ clientId, tipo_id, fecha_inicio, fecha_fin }) => {
+      const validation = validateClientId(clientId);
+      if (!validation.success) {
+        return createClientIdErrorResult(validation.error);
+      }
+      const { config } = validation;
+
+      const body: Record<string, any> = {};
+      if (typeof tipo_id === 'number') body.tipo_id = tipo_id;
+      if (fecha_inicio) body.fecha_inicio = fecha_inicio;
+      if (fecha_fin) body.fecha_fin = fecha_fin;
+
+      const data = await httpJson<any>(config, config.clientBaseUrl, '/front/api/comunicados/comunicados', {
+        method: 'POST',
+        body: JSON.stringify(body)
+      });
+      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    'comunicados_comunicado',
+    'Retorna el detalle completo de un comunicado específico: contenido HTML, archivos, imágenes (galería), cuestionario con alternativas, respuestas del usuario y detalle del equipo de la sucursal.',
+    {
+      clientId: z.string().describe('Client identifier (e.g., "sechpos", "acme")'),
+      comunicado_id: z.number().int().describe('ID del comunicado (obligatorio)')
+    },
+    async ({ clientId, comunicado_id }) => {
+      const validation = validateClientId(clientId);
+      if (!validation.success) {
+        return createClientIdErrorResult(validation.error);
+      }
+      const { config } = validation;
+
+      const data = await httpJson<any>(config, config.clientBaseUrl, '/front/api/comunicados/comunicado', {
+        method: 'POST',
+        body: JSON.stringify({ comunicado_id })
+      });
+      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    'comunicados_detalle_sucursal',
+    'Devuelve la lista de usuarios de una sucursal con sus estadísticas de evaluación para los comunicados activos en el período indicado.',
+    {
+      clientId: z.string().describe('Client identifier (e.g., "sechpos", "acme")'),
+      sucursal_id: z.number().int().describe('ID de la sucursal (obligatorio)'),
+      desde: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).describe('Fecha inicio YYYY-MM-DD'),
+      hasta: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).describe('Fecha fin YYYY-MM-DD')
+    },
+    async ({ clientId, sucursal_id, desde, hasta }) => {
+      const validation = validateClientId(clientId);
+      if (!validation.success) {
+        return createClientIdErrorResult(validation.error);
+      }
+      const { config } = validation;
+
+      const data = await httpJson<any>(config, config.clientBaseUrl, '/front/api/comunicados/detallesucursal', {
+        method: 'POST',
+        body: JSON.stringify({ sucursal_id, desde, hasta })
+      });
+      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    'comunicados_detalle_usuario',
+    'Devuelve la lista de comunicados evaluados por un usuario específico con estado de lectura, comprensión y puntaje.',
+    {
+      clientId: z.string().describe('Client identifier (e.g., "sechpos", "acme")'),
+      usuario_id: z.number().int().describe('ID del usuario (obligatorio)'),
+      desde: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).describe('Fecha inicio YYYY-MM-DD'),
+      hasta: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).describe('Fecha fin YYYY-MM-DD')
+    },
+    async ({ clientId, usuario_id, desde, hasta }) => {
+      const validation = validateClientId(clientId);
+      if (!validation.success) {
+        return createClientIdErrorResult(validation.error);
+      }
+      const { config } = validation;
+
+      const data = await httpJson<any>(config, config.clientBaseUrl, '/front/api/comunicados/detalleusuario', {
+        method: 'POST',
+        body: JSON.stringify({ usuario_id, desde, hasta })
+      });
+      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    'comunicados_dashboard',
+    'Retorna resumen de comunicados por tipo para el dashboard: total asignados, sin leer y hasta 2 comunicados sin leer más recientes por tipo.',
+    {
+      clientId: z.string().describe('Client identifier (e.g., "sechpos", "acme")'),
+      tipo_id: z.number().int().describe('ID del tipo de comunicado (obligatorio)')
+    },
+    async ({ clientId, tipo_id }) => {
+      const validation = validateClientId(clientId);
+      if (!validation.success) {
+        return createClientIdErrorResult(validation.error);
+      }
+      const { config } = validation;
+
+      const data = await httpJson<any>(config, config.clientBaseUrl, '/front/api/comunicados/dashboard', {
+        method: 'POST',
+        body: JSON.stringify({ tipo_id })
+      });
+      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+    }
+  );
+
   // Discovery tool - list available clients
   server.tool(
     'list_clients',
