@@ -2,147 +2,106 @@
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import { toFetchResponse, toReqRes } from 'fetch-to-node';
 import type { JSONRPCError } from '@modelcontextprotocol/sdk/types.js';
-import { randomUUID } from 'node:crypto';
-import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
 
 import { buildOneAppServer } from '../../src/oneappServer.js';
 
-// Store transports by session ID for proper session management
-const transports: { [sessionId: string]: StreamableHTTPServerTransport } = {};
+/**
+ * CORS headers. `Mcp-Session-Id` and `Mcp-Protocol-Version` must be exposed or
+ * browser-based clients cannot read them off the response.
+ */
+const CORS_HEADERS: Record<string, string> = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, GET, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Accept, Authorization, Mcp-Session-Id, Mcp-Protocol-Version, Last-Event-ID, X-Client-ID',
+  'Access-Control-Expose-Headers': 'Mcp-Session-Id, Mcp-Protocol-Version',
+  'Access-Control-Max-Age': '86400',
+};
 
-// Single MCP server instance - tools handle clientId parameter internally
-let mcpServer: ReturnType<typeof buildOneAppServer> | null = null;
-
-function getOrCreateServer() {
-  if (!mcpServer) {
-    mcpServer = buildOneAppServer();
-    console.log('Created MCP server instance');
+function withCors(response: Response): Response {
+  const headers = new Headers(response.headers);
+  for (const [key, value] of Object.entries(CORS_HEADERS)) {
+    headers.set(key, value);
   }
-  return mcpServer;
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
+}
+
+function jsonRpcError(status: number, code: number, message: string, id: string | number = '', extraHeaders: Record<string, string> = {}): Response {
+  return withCors(
+    new Response(
+      JSON.stringify({ jsonrpc: '2.0', error: { code, message }, id } satisfies JSONRPCError),
+      { status, headers: { 'Content-Type': 'application/json', ...extraHeaders } },
+    ),
+  );
 }
 
 /**
- * Netlify function handler — all MCP traffic is POSTed here
+ * Netlify function handler — all MCP traffic is POSTed here.
  *
- * Note: Header-based routing removed in v1.1. Tools now accept clientId as
+ * Runs in **stateless mode**: a fresh server + transport is built per request
+ * (`sessionIdGenerator: undefined`). Netlify Functions are serverless, so any
+ * in-memory session map would be lost between invocations anyway — statelessness
+ * is the only session model that is actually honest about the runtime.
+ *
+ * Note: header-based routing removed in v1.1. Tools now accept clientId as
  * first parameter and validate it internally. This allows LLMs to switch
  * between clients without connection changes.
  */
 export default async function handler(req: Request): Promise<Response> {
-  try {
-    if (req.method !== 'POST') {
-      return new Response('Method not allowed', { status: 405 });
-    }
+  // Preflight — must succeed or browser-origin clients never get to POST.
+  if (req.method === 'OPTIONS') {
+    return withCors(new Response(null, { status: 204 }));
+  }
 
+  // Stateless mode has no server-initiated stream to attach to.
+  if (req.method === 'GET') {
+    return jsonRpcError(405, -32000, 'Method not allowed: this server is stateless and does not support SSE streams via GET.', '', { Allow: 'POST, DELETE, OPTIONS' });
+  }
+
+  // No session to terminate, but answering cleanly keeps client teardown quiet.
+  if (req.method === 'DELETE') {
+    return withCors(new Response(null, { status: 204 }));
+  }
+
+  if (req.method !== 'POST') {
+    return jsonRpcError(405, -32000, 'Method not allowed', '', { Allow: 'POST, GET, DELETE, OPTIONS' });
+  }
+
+  let cleanup = async () => {};
+
+  try {
     // Check for deprecated X-Client-ID header
     const clientIdHeader = req.headers.get('x-client-id');
 
-    // Get the single server instance (tools validate clientId internally)
-    const server = getOrCreateServer();
+    const body = await req.json();
 
     // Netlify gives us Web-standard Request/Response objects; MCP wants Node req/res
     const { req: nodeReq, res: nodeRes } = toReqRes(req);
 
-    const body = await req.json();
-    const sessionId = req.headers.get('mcp-session-id');
+    const server = buildOneAppServer();
+    const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
 
-    let transport: StreamableHTTPServerTransport;
-
-    if (sessionId && transports[sessionId]) {
-      // Reuse existing transport for this session
-      transport = transports[sessionId];
-    } else if (isInitializeRequest(body)) {
-      // New initialization request - create new transport (session ID may or may not be present)
-      transport = new StreamableHTTPServerTransport({
-        sessionIdGenerator: () => sessionId || randomUUID(),
-        onsessioninitialized: (initSessionId) => {
-          // Store the transport by session ID when session is initialized
-          transports[initSessionId] = transport;
-          // Also store by request session ID if different
-          if (sessionId && sessionId !== initSessionId) {
-            transports[sessionId] = transport;
-          }
-        }
-      });
-
-      // Set up onclose handler to clean up transport when closed
-      transport.onclose = () => {
-        const sid = transport.sessionId;
-        if (sid && transports[sid]) {
-          delete transports[sid];
-        }
-        // Also clean up the request session ID if it was different
-        if (sessionId && sessionId !== sid && transports[sessionId]) {
-          delete transports[sessionId];
-        }
-      };
-
-      // Connect the transport to the MCP server
-      await server.connect(transport);
-
-      // Store immediately by request session ID if present
-      if (sessionId) {
-        transports[sessionId] = transport;
+    // `toFetchResponse` resolves as soon as the headers are flushed — the body
+    // may still be an open stream. Tear down only once the response has really
+    // ended, or an in-flight SSE body gets truncated.
+    let closed = false;
+    cleanup = async () => {
+      if (closed) return;
+      closed = true;
+      try {
+        await transport.close();
+        await server.close();
+      } catch (closeErr) {
+        console.error('Error closing MCP server:', closeErr);
       }
-    } else {
-      // For non-initialization requests without an existing transport,
-      // we'll create a transport and perform implicit initialization
-      
-      const finalSessionId = sessionId || randomUUID();
-      
-      // Create transport
-      transport = new StreamableHTTPServerTransport({
-        sessionIdGenerator: () => finalSessionId,
-        onsessioninitialized: (initSessionId) => {
-          transports[initSessionId] = transport;
-          if (finalSessionId !== initSessionId) {
-            transports[finalSessionId] = transport;
-          }
-        }
-      });
+    };
+    nodeRes.on('finish', () => void cleanup());
+    nodeRes.on('close', () => void cleanup());
 
-      // Set up onclose handler
-      transport.onclose = () => {
-        const sid = transport.sessionId;
-        if (sid && transports[sid]) {
-          delete transports[sid];
-        }
-        if (finalSessionId !== sid && transports[finalSessionId]) {
-          delete transports[finalSessionId];
-        }
-      };
-
-      // Connect the transport to the MCP server
-      await server.connect(transport);
-
-      // Store the transport
-      transports[finalSessionId] = transport;
-      
-      // Create a synthetic initialization request to properly initialize the session
-      const initRequest = {
-        jsonrpc: '2.0' as const,
-        id: 0,
-        method: 'initialize',
-        params: {
-          protocolVersion: '2024-11-05',
-          capabilities: {},
-          clientInfo: { name: 'mcp-inspector', version: '1.0.0' }
-        }
-      };
-      
-      
-      // Create temporary Node.js request/response for initialization
-      const { req: initNodeReq, res: initNodeRes } = toReqRes(new Request(req.url, {
-        method: 'POST',
-        headers: req.headers,
-        body: JSON.stringify(initRequest)
-      }));
-      
-      // Handle the initialization request
-      await transport.handleRequest(initNodeReq, initNodeRes, initRequest);
-    }
-
-    // Handle the request with the appropriate transport
+    await server.connect(transport);
     await transport.handleRequest(nodeReq, nodeRes, body);
 
     // Get the response that was written to nodeRes
@@ -170,25 +129,23 @@ export default async function handler(req: Request): Promise<Response> {
       }
     }
 
-    return response;
-  } catch (err) {    
+    return withCors(response);
+  } catch (err) {
+    console.error('MCP request failed:', err);
+
     // Try to get the request ID from the original body
-    let requestId = '';
+    let requestId: string | number = '';
     try {
       const errorBody = await req.clone().json();
-      requestId = errorBody?.id || '';
+      requestId = errorBody?.id ?? '';
     } catch {
       // Ignore error parsing body for error response
     }
-    
-    return new Response(
-      JSON.stringify({
-        jsonrpc: '2.0',
-        error: { code: -32603, message: `Internal server error: ${err instanceof Error ? err.message : String(err)}` },
-        id: requestId,
-      } satisfies JSONRPCError),
-      { status: 500, headers: { 'Content-Type': 'application/json' } },
-    );
+
+    // The response never got off the ground, so tearing down now is safe.
+    await cleanup();
+
+    return jsonRpcError(500, -32603, `Internal server error: ${err instanceof Error ? err.message : String(err)}`, requestId);
   }
 }
 
